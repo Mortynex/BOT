@@ -1,0 +1,1 @@
+export { slashCommandArgument } from "./slashCommandArgument"
