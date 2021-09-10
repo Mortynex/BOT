@@ -7,7 +7,19 @@ interface SlashCommandRun {
     (client: Bot, interaction: CommandInteraction, args: slashCommandArgument[]): void
 }
 
+interface toJSONFunction {
+    (): object
+}
+
+type genericSlashCommandBuilder = {
+    toJSON: toJSONFunction;
+    name: string;
+    description: string;
+} & {
+    [prop: string | number | symbol]: any
+}
+
 export interface SlashCommand {
     run: SlashCommandRun;
-    slashData: Partial<SlashCommandBuilder> | SlashCommandSubcommandsOnlyBuilder;
+    slashData: genericSlashCommandBuilder;
 }
