@@ -4,7 +4,7 @@ import { SlashCommand } from '../../Interfaces';
 import { slashCommandArgument } from '../../Types';
 
 export const command: SlashCommand = {
-	slashData: new SlashCommandBuilder()
+	data: new SlashCommandBuilder()
 		.setName('ping')
 		.setDescription('pings me you back')
 		.setDefaultPermission(true)
