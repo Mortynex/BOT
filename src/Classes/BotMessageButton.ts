@@ -1,27 +1,57 @@
-import { ButtonInteraction, MessageButton, MessageButtonOptions } from "discord.js";
+import {
+	ButtonInteraction,
+	Interaction,
+	MessageButton,
+	MessageButtonOptions,
+} from "discord.js";
+import ms from "ms";
 import { getClientInstance } from "..";
 import Bot from "../Client";
+import { BotHandlerOptions } from "../Types";
 
 export class BotMessageButton extends MessageButton {
 	private client: Bot;
+	private interactionHandler: ((...args: any[]) => any) | null = null;
 	constructor(data?: MessageButton | MessageButtonOptions | undefined) {
 		super(data);
 
 		this.client = getClientInstance();
 
-		// generate random string for the customId
-		this.customId = "button_" + String(Math.floor(100000 + Math.random() * 899999));
+		this.customId = "button_" + Math.floor(9999 + Math.random() * 9999999);
 	}
-	onClick(clickHandler: (buttonInteraction: ButtonInteraction) => any) {
-		this.client.on("interactionCreate", (interaction) => {
-			if (!interaction.isButton()) return;
+	onClick(
+		clickHandler: (buttonInteraction: ButtonInteraction) => any,
+		options: BotHandlerOptions = {}
+	) {
+		const { ephermalReply, keepAlive, lifespan } = options;
 
-			// return if the button doesnt match our buttons id
+		const interactionHandler = async (interaction: Interaction) => {
+			if (!interaction.isButton()) return;
+			await interaction
+				.deferReply({
+					ephemeral: ephermalReply || this.client.config.ephermalAsDefault,
+				})
+				.catch(() => {});
+			// return if the select menu doesnt match our buttons id
 			if (interaction.customId !== this.customId) return;
 
 			clickHandler(interaction);
-		});
+		};
+
+		if (!keepAlive) {
+			setTimeout(() => {
+				this.unsubscribe();
+			}, lifespan || ms(this.client.config.handlerLifespan));
+		}
+
+		this.client.on("interactionCreate", interactionHandler);
+		this.interactionHandler = interactionHandler;
 
 		return this;
+	}
+	unsubscribe() {
+		if (this.interactionHandler === null) return;
+
+		this.client.removeListener("interactionCreate", this.interactionHandler);
 	}
 }
