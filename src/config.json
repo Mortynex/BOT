@@ -1,5 +1,5 @@
 {
-    "guildIDs": [
+    "slashCommandGuildIDs": [ 
         "862706989547913218"
     ] 
 }

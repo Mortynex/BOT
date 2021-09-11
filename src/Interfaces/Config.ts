@@ -1,3 +1,3 @@
 export interface Config {
-    guildIDs: string[]
+	slashCommandGuildIDs: string[];
 }
