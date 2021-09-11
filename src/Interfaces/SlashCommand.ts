@@ -9,4 +9,5 @@ interface SlashCommandRun {
 export interface SlashCommand {
 	run: SlashCommandRun;
 	data: genericSlashCommandBuilder;
+	ephermal?: boolean;
 }

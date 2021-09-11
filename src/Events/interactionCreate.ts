@@ -1,19 +1,22 @@
 import { Event } from "../Interfaces";
 import { Interaction } from "discord.js";
 import { slashCommandArgument } from "../Types";
+
 export const event: Event = {
 	name: "interactionCreate",
 	async run(client, interaction: Interaction) {
 		if (!interaction.isCommand()) return;
 
-		await interaction.deferReply({ ephemeral: true }).catch(() => {});
-
 		const command = client.slashCommands.get(interaction.commandName);
 		if (!command) {
-			return interaction.followUp({
+			return interaction.reply({
 				content: "Whoops... we cant find this command :/",
 			});
 		}
+
+		await interaction
+			.deferReply({ ephemeral: command.ephermal || client.config.ephermalAsDefault })
+			.catch(() => {});
 
 		const args: slashCommandArgument[] = [];
 
