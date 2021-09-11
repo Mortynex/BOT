@@ -1,12 +1,12 @@
 import path from "path";
 import { readdirSync } from "fs";
 import { SlashCommand } from "../Interfaces";
-import Bot from "../Client";
+import { Base } from "../Classes";
 
-export class SlashCommandHandler {
-	init(client: Bot) {
+export class SlashCommandHandler extends Base {
+	init() {
 		// get all commands
-		const { config, slashCommands } = client;
+		const { config, slashCommands } = this.client;
 		const categoriesDirectory = path.join(process.cwd(), "src", "SlashCommands");
 		const categories = readdirSync(categoriesDirectory);
 
@@ -41,10 +41,11 @@ export class SlashCommandHandler {
 		}
 
 		// register the commands in configured guilds
-		client.on("ready", async () => {
+		this.client.on("ready", async () => {
 			for (const guildID of config.slashCommandGuildIDs) {
 				const guild =
-					client.guilds.cache.get(guildID) || (await client.guilds.fetch(guildID));
+					this.client.guilds.cache.get(guildID) ||
+					(await this.client.guilds.fetch(guildID));
 
 				if (!guild) {
 					console.error(`couldnt update slash commands for guild ${guildID}`);
