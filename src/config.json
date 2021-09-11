@@ -1,5 +1,6 @@
 {
     "slashCommandGuildIDs": [ 
         "862706989547913218"
-    ] 
+    ],
+    "ephermalAsDefault": false
 }
