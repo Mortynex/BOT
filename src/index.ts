@@ -9,3 +9,8 @@ const botClient = new Bot({
 });
 
 botClient.init();
+
+export const getClientInstance = (): Bot => {
+	return botClient;
+};
+
