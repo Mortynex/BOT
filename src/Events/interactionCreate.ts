@@ -43,6 +43,11 @@ export const event: Event = {
 
 		interaction.member = member;
 
-		command.run(client, interaction, args);
+		try {
+			command.run(client, interaction, args);
+		} catch (e) {
+			console.error(e);
+			console.warn(`Command ${command.data.name} had an error while executing`);
+		}
 	},
 };

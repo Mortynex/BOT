@@ -2,5 +2,6 @@
     "slashCommandGuildIDs": [ 
         "862706989547913218"
     ],
-    "ephermalAsDefault": false
+    "ephermalAsDefault": false,
+    "handlerLifespan": "24h"
 }
