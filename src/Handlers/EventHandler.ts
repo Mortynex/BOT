@@ -1,8 +1,8 @@
 import path from "path";
 import { readdirSync } from "fs";
 import { Event } from "../Interfaces";
-import Bot from "../Client";
 import { Base } from "../Classes";
+
 export class EventHandler extends Base {
 	init() {
 		const eventsDirectory = path.join(process.cwd(), "src", "Events");
