@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Message, Client, CommandInteraction } from "discord.js";
+import { Client, CommandInteraction, MessageActionRow, MessageButton } from "discord.js";
+import { BotMessageButton } from "../../Classes/BotMessageButton";
 import { SlashCommand } from "../../Interfaces";
 import { slashCommandArgument } from "../../Types";
 
