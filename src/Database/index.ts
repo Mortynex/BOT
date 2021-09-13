@@ -1,3 +1,2 @@
-import { Base } from "../Classes";
-
-export class Database extends Base {}
+export { Database } from "./Database";
+export { Users } from "./Users";
