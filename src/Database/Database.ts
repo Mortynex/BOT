@@ -1,7 +1,7 @@
 import { createConnection } from "typeorm";
 import { Users } from ".";
 import { Base } from "../Classes";
-import { User } from "../Entities/User";
+import { User } from "../Entities";
 
 export class Database extends Base {
 	public users: Users;
@@ -13,6 +13,6 @@ export class Database extends Base {
 			entities: [User],
 		});
 
-		this.users = new Users();
+		this.users = new Users(User);
 	}
 }
