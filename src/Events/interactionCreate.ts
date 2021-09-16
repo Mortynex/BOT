@@ -50,6 +50,7 @@ export const event: Event = {
 		} catch (e) {
 			console.error(e);
 			console.warn(`Command ${command.data.name} had an error while executing`);
+			interaction.followUp("Command had an error while executing");
 		}
 	},
 };
