@@ -1,13 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import {
-	ButtonInteraction,
-	Client,
-	CommandInteraction,
-	MessageActionRow,
-	MessageButton,
-} from "discord.js";
-import { BotMessageButton } from "../../Classes";
-import { SlashCommand } from "../../Interfaces";
+import { Client } from "discord.js";
+import { SlashCommand, SlashCommandInteraction } from "../../Interfaces";
 import { slashCommandArgument } from "../../Types";
 
 export const command: SlashCommand = {
@@ -15,23 +8,13 @@ export const command: SlashCommand = {
 		.setName("ping")
 		.setDescription("pings you back")
 		.setDefaultPermission(true),
-	run(client: Client, interaction: CommandInteraction, args: slashCommandArgument[]) {
-		const getcustomid = (interaction: ButtonInteraction) => {
-			interaction.followUp({
-				content: interaction.customId,
-			});
-		};
+	run(
+		client: Client,
+		interaction: SlashCommandInteraction,
+		args: slashCommandArgument[]
+	) {
 		interaction.followUp({
 			content: "Pong!",
-			components: [
-				new MessageActionRow().addComponents(
-					new BotMessageButton()
-						.setLabel("hello")
-						.setStyle("PRIMARY")
-						.onClick(getcustomid),
-					new BotMessageButton().setLabel("hi").setStyle("PRIMARY").onClick(getcustomid)
-				),
-			],
 		});
 	},
 };

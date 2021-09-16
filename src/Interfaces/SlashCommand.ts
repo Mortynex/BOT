@@ -1,9 +1,9 @@
-import { CommandInteraction } from "discord.js";
+import { SlashCommandInteraction } from ".";
 import Bot from "../Client";
 import { genericSlashCommandBuilder, slashCommandArgument } from "../Types";
 
 interface SlashCommandRun {
-	(client: Bot, interaction: CommandInteraction, args: slashCommandArgument[]): void;
+	(client: Bot, interaction: SlashCommandInteraction, args: slashCommandArgument[]): void;
 }
 
 export interface SlashCommand {

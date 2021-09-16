@@ -1,4 +1,4 @@
-import { Event } from "../Interfaces";
+import { Event, SlashCommandInteraction } from "../Interfaces";
 import { Interaction } from "discord.js";
 import { slashCommandArgument } from "../Types";
 
@@ -42,9 +42,11 @@ export const event: Event = {
 		}
 
 		interaction.member = member;
-
+		const slashCommandInteraction: SlashCommandInteraction = Object.assign(interaction, {
+			member,
+		});
 		try {
-			command.run(client, interaction, args);
+			command.run(client, slashCommandInteraction, args);
 		} catch (e) {
 			console.error(e);
 			console.warn(`Command ${command.data.name} had an error while executing`);
