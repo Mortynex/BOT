@@ -1,18 +1,18 @@
 import { createConnection } from "typeorm";
-import { Users } from ".";
+import { Members } from ".";
 import { Base } from "../Classes";
-import { User } from "../Entities";
+import { Member } from "../Entities";
 
 export class Database extends Base {
-	public users: Users;
+	public members: Members;
 
 	async init() {
 		await createConnection({
 			type: "better-sqlite3",
 			database: "./db.sqlite",
-			entities: [User],
+			entities: [Member],
 		});
 
-		this.users = new Users(User);
+		this.members = new Members(Member);
 	}
 }
