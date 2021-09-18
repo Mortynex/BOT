@@ -7,13 +7,14 @@ export const command: SlashCommand = {
 	data: new SlashCommandBuilder()
 		.setName("ban")
 		.setDescription("bans a user")
-		.setDefaultPermission(true)
+		.setDefaultPermission(false)
 		.addUserOption((option) =>
 			option.setName("target").setDescription("user to ban").setRequired(true)
 		)
 		.addStringOption((option) =>
 			option.setName("reason").setDescription("reason for the ban").setRequired(false)
 		),
+	defaultPermissions: ['BAN_MEMBERS'],
 	run(
 		client: Client,
 		interaction: SlashCommandInteraction,

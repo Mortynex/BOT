@@ -7,13 +7,14 @@ export const command: SlashCommand = {
 	data: new SlashCommandBuilder()
 		.setName("kick")
 		.setDescription("kicks a user")
-		.setDefaultPermission(true)
+		.setDefaultPermission(false)
 		.addUserOption((option) =>
 			option.setName("target").setDescription("user to kick").setRequired(true)
 		)
 		.addStringOption((option) =>
 			option.setName("reason").setDescription("reason for the kick").setRequired(false)
 		),
+	defaultPermissions: ['KICK_MEMBERS'],
 	run(
 		client: Client,
 		interaction: SlashCommandInteraction,
