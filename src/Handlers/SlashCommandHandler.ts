@@ -64,18 +64,18 @@ export class SlashCommandHandler extends Base {
 		for(const slashCommand of slashCommandsPreprocessed){
 			const { data } = slashCommand;
 
+			const dataInJSON: object & { defaultPermission?: boolean | undefined} = data.toJSON();
+
 			if(slashCommand.defaultPermissions !== undefined && slashCommand.defaultPermissions.length !== 0){
-				slashCommand.data.setDefaultPermission?.(false);
-				console.log("disabled");
+				dataInJSON.defaultPermission = false;
 				configurableSlashCommands.push(slashCommand);
 			}
 			else{
-				//slashCommand.data.setDefaultPermission?.(true);
-				console.log("enabled");
+				dataInJSON.defaultPermission = true;
 			}
 
-			const dataInJSON = data.toJSON();
-			console.log(data.defaultPermission, dataInJSON);
+			
+			console.log(dataInJSON);
 			if (dataInJSON) {
 				slashCommandsRawData.push(dataInJSON);
 			}
@@ -94,7 +94,7 @@ export class SlashCommandHandler extends Base {
 					console.error(`couldnt update slash commands for guild ${guildID}`);
 					continue;
 				}
-
+				
 				const slashCommandsDirty = await guild.commands.set(slashCommandsRawData as any); // :/
 				
 
