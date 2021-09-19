@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { roleMention, SlashCommandBuilder } from "@discordjs/builders";
 import {
 	ApplicationCommand,
 	ApplicationCommandPermissionData,
@@ -100,22 +100,16 @@ export const command: DynamicSlashCommand = {
 		const { guild } = interaction;
 		const action = interaction.options.getSubcommand();
 
-		const commandPermissions = await interaction.guild.commands.permissions.fetch({});
-		if (!commandPermissions) {
-			return interaction.followUp("Cant find permissions for this guild");
-		}
-		const fullPermissions: GuildApplicationCommandPermissionData[] = [
-			...commandPermissions,
-		].map(([commandId, commandPermissions]) => ({
-			id: commandId,
-			permissions: commandPermissions,
-		}));
-
-		const commands = proccesCommandPermissions(interaction, client, [
-			...commandPermissions,
-		]);
-
 		if (action === "list") {
+			const commandPermissions = await interaction.guild.commands.permissions.fetch({});
+			if (!commandPermissions) {
+				return interaction.followUp("Cant find permissions for this guild");
+			}
+
+			const commands = proccesCommandPermissions(interaction, client, [
+				...commandPermissions,
+			]);
+
 			const fields: EmbedFieldData[] = commandRolesToFields(commands);
 
 			const embed1 = new MessageEmbed().setTitle("Permissions").setFields(fields);
@@ -142,84 +136,46 @@ export const command: DynamicSlashCommand = {
 		}
 
 		if (action === "add") {
-			let updatedCommandRole: CommandRoles = [];
-			const newFullPermissions = fullPermissions.map((permissionData) => {
-				const { id, permissions } = permissionData;
-				const permissionCommand = interaction.guild.commands.resolve(id);
-
-				if (!permissionCommand || permissionCommand.name !== commandNameOption) {
-					return permissionData;
-				}
-
-				permissions.push({
-					permission: true,
-					type: "ROLE",
-					id: roleOption.id,
-				});
-
-				updatedCommandRole = proccesCommandPermissions(interaction, client, [
-					[id, permissions],
-				]);
-
-				return {
-					id,
-					permissions,
-				};
-			});
-
-			await interaction.guild.commands.permissions.set({
-				fullPermissions: newFullPermissions,
+			const newPermissions = await guild.commands.permissions.add({
+				command: applicationCommmand.id,
+				permissions: [
+					{
+						id: roleOption.id,
+						type: "ROLE",
+						permission: true,
+					},
+				],
 			});
 
 			interaction.followUp(
 				`Succesfully added ${roleOption.toString()} to command /${commandNameOption}!`
 			);
-			const [command, roles] = updatedCommandRole[0];
+
+			const roles: string[] = newPermissions.map(({ id }) => roleMention(id));
 
 			const newCommandRolesEmbed = new MessageEmbed()
-				.setTitle(`/${command.data.name}`)
+				.setTitle(`/${applicationCommmand.name}`)
 				.setDescription(roles.join(", "));
 
 			interaction.followUp({
 				embeds: [newCommandRolesEmbed],
 			});
 		} else if (action === "remove") {
-			let updatedCommandRole: CommandRoles = [];
-			const newFullPermissions = fullPermissions.map((permissionData) => {
-				const { id, permissions } = permissionData;
-				const permissionCommand = interaction.guild.commands.resolve(id);
-
-				if (!permissionCommand || permissionCommand.name !== commandNameOption) {
-					return permissionData;
-				}
-
-				const newPermissions = permissions.filter(
-					(permission) => permission.id !== roleOption.id
-				);
-
-				updatedCommandRole = proccesCommandPermissions(interaction, client, [
-					[id, newPermissions],
-				]);
-
-				return {
-					id,
-					permissions: newPermissions,
-				};
-			});
-
-			await interaction.guild.commands.permissions.set({
-				fullPermissions: newFullPermissions,
+			const newPermissions = await guild.commands.permissions.remove({
+				command: applicationCommmand.id,
+				roles: [roleOption.id],
 			});
 
 			interaction.followUp(
 				`Succesfully removed ${roleOption.toString()} from command /${commandNameOption}!`
 			);
 
-			const [command, roles] = updatedCommandRole[0];
+			const roles: string[] = newPermissions.map(({ id }) => roleMention(id));
 
 			const newCommandRolesEmbed = new MessageEmbed()
-				.setTitle(`/${command.data.name}`)
+				.setTitle(`/${applicationCommmand.name}`)
 				.setDescription(roles.join(", "));
+
 			interaction.followUp({
 				embeds: [newCommandRolesEmbed],
 			});
