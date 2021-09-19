@@ -14,13 +14,13 @@ export const command: SlashCommand = {
 		.addStringOption((option) =>
 			option.setName("reason").setDescription("reason for the ban").setRequired(false)
 		),
-	defaultPermissions: ['BAN_MEMBERS'],
+	defaultPermissions: ["BAN_MEMBERS"],
 	run(
 		client: Client,
 		interaction: SlashCommandInteraction,
 		args: slashCommandArgument[]
 	) {
-        const { member, options } = interaction;
+		const { member, options } = interaction;
 		const target = options.getMember("target");
 		const reason = options.getString("reason");
 

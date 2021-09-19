@@ -2,17 +2,22 @@ import path from "path";
 import { readdirSync } from "fs";
 import { DynamicSlashCommand, SlashCommand } from "../Interfaces";
 import { Base } from "../Classes";
-import { ApplicationCommandPermissionData, GuildApplicationCommandPermissionData } from "discord.js";
+import {
+	ApplicationCommandPermissionData,
+	GuildApplicationCommandPermissionData,
+} from "discord.js";
+import { command } from "../SlashCommands/admin/ban";
 
-function commandIsDynamicSlashCommand(slashCommand: SlashCommand | DynamicSlashCommand): slashCommand is DynamicSlashCommand {
+function commandIsDynamicSlashCommand(
+	slashCommand: SlashCommand | DynamicSlashCommand
+): slashCommand is DynamicSlashCommand {
 	return (slashCommand as DynamicSlashCommand).dynamicData !== undefined;
-
 }
 
 export class SlashCommandHandler extends Base {
 	init() {
 		// get all commands
-		const { config, slashCommands } = this.client;
+		const { config, slashCommands, commandCategories } = this.client;
 		const categoriesDirectory = path.join(process.cwd(), "src", "SlashCommands");
 		const categories = readdirSync(categoriesDirectory);
 
@@ -28,54 +33,53 @@ export class SlashCommandHandler extends Base {
 				command.endsWith(".ts")
 			);
 
+			if (commands.length > 0) {
+				commandCategories.push(category);
+			}
+
 			for (const command of commands) {
 				// loop through all commands in the category
 				const commandPath = path.join(commandsPath, command);
 				const commandExport = require(commandPath);
-				const commandData: SlashCommand | DynamicSlashCommand  = commandExport.command;
-				
-				if(commandIsDynamicSlashCommand(commandData)){
+				const commandData: SlashCommand | DynamicSlashCommand = commandExport.command;
+
+				if (commandIsDynamicSlashCommand(commandData)) {
 					slashCommandsDynamic.push(commandData);
+				} else {
+					slashCommandsPreprocessed.push(commandData);
 				}
-				else{
-					
-
-					slashCommandsPreprocessed.push(commandData)
-				}
-				
-
-
-				
-
-				
 			}
 		}
 
-		
-		for(const dynamicSlashCommand of slashCommandsDynamic){
-			const data = dynamicSlashCommand.dynamicData(this.client, slashCommandsPreprocessed, categories)
+		for (const dynamicSlashCommand of slashCommandsDynamic) {
+			const data = dynamicSlashCommand.dynamicData(
+				this.client,
+				slashCommandsPreprocessed,
+				categories
+			);
 			const slashCommand: SlashCommand = {
 				...dynamicSlashCommand,
-				data: data
-			}
+				data: data,
+			};
 
 			slashCommandsPreprocessed.push(slashCommand);
 		}
-		for(const slashCommand of slashCommandsPreprocessed){
+		for (const slashCommand of slashCommandsPreprocessed) {
 			const { data } = slashCommand;
 
-			const dataInJSON: object & { defaultPermission?: boolean | undefined} = data.toJSON();
+			const dataInJSON: object & { defaultPermission?: boolean | undefined } =
+				data.toJSON();
 
-			if(slashCommand.defaultPermissions !== undefined && slashCommand.defaultPermissions.length !== 0){
+			if (
+				slashCommand.defaultPermissions !== undefined &&
+				slashCommand.defaultPermissions.length !== 0
+			) {
 				dataInJSON.defaultPermission = false;
 				configurableSlashCommands.push(slashCommand);
-			}
-			else{
+			} else {
 				dataInJSON.defaultPermission = true;
 			}
 
-			
-			console.log(dataInJSON);
 			if (dataInJSON) {
 				slashCommandsRawData.push(dataInJSON);
 			}
@@ -94,46 +98,59 @@ export class SlashCommandHandler extends Base {
 					console.error(`couldnt update slash commands for guild ${guildID}`);
 					continue;
 				}
-				
-				const slashCommandsDirty = await guild.commands.set(slashCommandsRawData as any); // :/
-				
 
-				const configurableSlashCommandNames = configurableSlashCommands.map((slashCommand) =>
-					slashCommand.data.name
+				const slashCommandsDirty = await guild.commands.set(slashCommandsRawData as any); // :/
+
+				const guildPermissions = await guild.commands.permissions.fetch({});
+
+				const configurableSlashCommandNames = configurableSlashCommands.map(
+					(slashCommand) => slashCommand.data.name
 				);
 				// filter slashCommands to only these which permissions can be configured
 				const slashCommands = slashCommandsDirty.filter((slashCommand) => {
 					return configurableSlashCommandNames.includes(slashCommand.name);
-				})
-				
-				const fullPermissionsPromise: Promise<GuildApplicationCommandPermissionData>[]  = [...slashCommands].map(async ([commandName, command]) => {
-					const roleDefaultPermissions = configurableSlashCommands.find((slashCommand) => 
-					slashCommand.data.name === command.name)?.defaultPermissions || [];
+				});
 
-					const roles = await (await guild.roles.fetch())
-						.filter((role) => role.permissions.has(roleDefaultPermissions));
-					
-					const permissions: ApplicationCommandPermissionData[] = [...roles].map(([roleName, role]) => ({
-						id: role.id,
-						type: 'ROLE',
-						permission: true
-					} ));
-					
-					
+				const fullPermissionsPromise: Promise<GuildApplicationCommandPermissionData>[] = [
+					...slashCommands,
+				].map(async ([commandName, command]) => {
+					const guildPermissionsForCommand = guildPermissions.get(command.id);
+					if (guildPermissionsForCommand) {
+						return {
+							id: command.id,
+							permissions: guildPermissionsForCommand,
+						};
+					}
+
+					const roleDefaultPermissions =
+						configurableSlashCommands.find(
+							(slashCommand) => slashCommand.data.name === command.name
+						)?.defaultPermissions || [];
+
+					const roles = await (
+						await guild.roles.fetch()
+					).filter((role) => role.permissions.has(roleDefaultPermissions));
+
+					const permissions: ApplicationCommandPermissionData[] = [...roles].map(
+						([roleName, role]) => ({
+							id: role.id,
+							type: "ROLE",
+							permission: true,
+						})
+					);
+
 					return {
 						id: command.id,
-						permissions
-					}
-						
+						permissions,
+					};
 				});
 
 				const fullPermissions = await Promise.all(fullPermissionsPromise);
-				console.log(fullPermissions, JSON.stringify(fullPermissions))
+
 				await guild.commands.permissions.set({
-					fullPermissions
+					fullPermissions,
 				});
 			}
 		});
-		
 	}
 }

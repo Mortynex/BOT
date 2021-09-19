@@ -10,6 +10,7 @@ class Bot extends Client {
 	public aliases: Collection<string, SlashCommand> = new Collection();
 	public config: Config = configJson;
 	public database: Database;
+	public commandCategories: string[] = [];
 
 	public async init() {
 		this.login(process.env.DISCORD_API_TOKEN);
