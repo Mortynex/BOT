@@ -7,9 +7,13 @@ interface SlashCommandRun {
 	(client: Bot, interaction: SlashCommandInteraction, args: slashCommandArgument[]): void;
 }
 
+interface SlashCommandDataFunction{
+	(client: Bot): genericSlashCommandBuilder
+}
+
 export interface SlashCommand {
 	run: SlashCommandRun;
-	data: genericSlashCommandBuilder;
+	data: genericSlashCommandBuilder | SlashCommandDataFunction;
 	ephermal?: boolean;
 	defaultPermissions?: (keyof PermissionFlags)[];
 }

@@ -10,7 +10,6 @@ import {
 } from "discord.js";
 import Bot from "../../Client";
 import {
-	DynamicSlashCommand,
 	SlashCommand,
 	SlashCommandInteraction,
 } from "../../Interfaces";
@@ -18,8 +17,9 @@ import { slashCommandArgument } from "../../Types";
 
 type CommandRoles = [SlashCommand, Role[]][];
 
-export const command: DynamicSlashCommand = {
-	dynamicData: (client, commands, categories) => {
+export const command: SlashCommand = {
+	data: (client) => {
+		/* will reimplement this later
 		const choices = [
 			...commands
 				.filter(
@@ -33,8 +33,8 @@ export const command: DynamicSlashCommand = {
 				})) /*, ...categories.map(( category )=> ({
             key: `category ${category}`,
             value: `category_${category}`,
-        }))*/,
-		];
+        })),
+		];*/
 
 		return new SlashCommandBuilder()
 			.setName("permissions")
@@ -60,9 +60,9 @@ export const command: DynamicSlashCommand = {
 									.setDescription("role to allow a command")
 							)
 							.addStringOption((command) => {
-								for (const { key, value } of choices) {
+								/*for (const { key, value } of choices) {
 									command.addChoice(key, value);
-								}
+								}*/
 								return command
 									.setName("command")
 									.setDescription("Command to add a permissio role")
@@ -74,12 +74,12 @@ export const command: DynamicSlashCommand = {
 							.setName("remove")
 							.setDescription("remove an role from a command")
 							.addStringOption((role) => {
-								for (const { key, value } of choices) {
+								/*for (const { key, value } of choices) {
 									role.addChoice(key, value);
-								}
+								}*/
 								return role
 									.setName("command")
-									.setDescription("Command to remove a permissio role")
+									.setDescription("Command to remove a permission role")
 									.setRequired(true);
 							})
 							.addRoleOption((role) =>
@@ -112,17 +112,19 @@ export const command: DynamicSlashCommand = {
 
 			const fields: EmbedFieldData[] = commandRolesToFields(commands);
 
-			const embed1 = new MessageEmbed().setTitle("Permissions").setFields(fields);
+			const permissionsEmbed = new MessageEmbed()
+				.setTitle("Permissions")
+				.setFields(fields);
 
 			interaction.followUp({
-				embeds: [embed1],
+				embeds: [permissionsEmbed],
 			});
 
 			return;
 		}
 
 		const roleOption = interaction.options.getRole("role");
-		const commandNameOption = interaction.options.getString("command");
+		const commandNameOption = interaction.options.getString("command")?.toLowerCase();
 
 		if (!roleOption || !commandNameOption) {
 			return interaction.followUp("Invalid arguments");

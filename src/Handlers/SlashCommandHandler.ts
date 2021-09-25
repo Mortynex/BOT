@@ -1,6 +1,6 @@
 import path from "path";
 import { readdirSync } from "fs";
-import { DynamicSlashCommand, SlashCommand } from "../Interfaces";
+import { SlashCommand } from "../Interfaces";
 import { Base } from "../Classes";
 import {
 	ApplicationCommandPermissionData,
@@ -8,23 +8,20 @@ import {
 } from "discord.js";
 import { command } from "../SlashCommands/admin/ban";
 
-function commandIsDynamicSlashCommand(
-	slashCommand: SlashCommand | DynamicSlashCommand
-): slashCommand is DynamicSlashCommand {
-	return (slashCommand as DynamicSlashCommand).dynamicData !== undefined;
+function isFunction(input: any): input is Function {
+	return typeof input === "function";
 }
 
 export class SlashCommandHandler extends Base {
-	init() {
+	async init() {
 		// get all commands
 		const { config, slashCommands, commandCategories } = this.client;
 		const categoriesDirectory = path.join(process.cwd(), "src", "SlashCommands");
 		const categories = readdirSync(categoriesDirectory);
 
 		const slashCommandsRawData: object[] = [];
-		const configurableSlashCommands: SlashCommand[] = [];
+		const slashCommandsWithPermissions: SlashCommand[] = [];
 		const slashCommandsPreprocessed: SlashCommand[] = [];
-		const slashCommandsDynamic: DynamicSlashCommand[] = [];
 
 		for (const category of categories) {
 			// loop through all command categories
@@ -40,32 +37,18 @@ export class SlashCommandHandler extends Base {
 			for (const command of commands) {
 				// loop through all commands in the category
 				const commandPath = path.join(commandsPath, command);
-				const commandExport = require(commandPath);
-				const commandData: SlashCommand | DynamicSlashCommand = commandExport.command;
+				const commandExport = await import(commandPath);
+				const commandData: SlashCommand = commandExport.command;
 
-				if (commandIsDynamicSlashCommand(commandData)) {
-					slashCommandsDynamic.push(commandData);
-				} else {
-					slashCommandsPreprocessed.push(commandData);
-				}
+				slashCommandsPreprocessed.push(commandData);
 			}
 		}
-
-		for (const dynamicSlashCommand of slashCommandsDynamic) {
-			const data = dynamicSlashCommand.dynamicData(
-				this.client,
-				slashCommandsPreprocessed,
-				categories
-			);
-			const slashCommand: SlashCommand = {
-				...dynamicSlashCommand,
-				data: data,
-			};
-
-			slashCommandsPreprocessed.push(slashCommand);
-		}
 		for (const slashCommand of slashCommandsPreprocessed) {
-			const { data } = slashCommand;
+			let { data } = slashCommand;
+
+			if (isFunction(data)) {
+				data = data(this.client);
+			}
 
 			const dataInJSON: object & { defaultPermission?: boolean | undefined } =
 				data.toJSON();
@@ -75,7 +58,7 @@ export class SlashCommandHandler extends Base {
 				slashCommand.defaultPermissions.length !== 0
 			) {
 				dataInJSON.defaultPermission = false;
-				configurableSlashCommands.push(slashCommand);
+				slashCommandsWithPermissions.push(slashCommand);
 			} else {
 				dataInJSON.defaultPermission = true;
 			}
@@ -103,12 +86,12 @@ export class SlashCommandHandler extends Base {
 
 				const guildPermissions = await guild.commands.permissions.fetch({});
 
-				const configurableSlashCommandNames = configurableSlashCommands.map(
+				const commandsWithPermissionsNames = slashCommandsWithPermissions.map(
 					(slashCommand) => slashCommand.data.name
 				);
 				// filter slashCommands to only these which permissions can be configured
 				const slashCommands = slashCommandsDirty.filter((slashCommand) => {
-					return configurableSlashCommandNames.includes(slashCommand.name);
+					return commandsWithPermissionsNames.includes(slashCommand.name);
 				});
 
 				const fullPermissionsPromise: Promise<GuildApplicationCommandPermissionData>[] = [
@@ -123,7 +106,7 @@ export class SlashCommandHandler extends Base {
 					}
 
 					const roleDefaultPermissions =
-						configurableSlashCommands.find(
+						slashCommandsWithPermissions.find(
 							(slashCommand) => slashCommand.data.name === command.name
 						)?.defaultPermissions || [];
 
