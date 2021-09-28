@@ -33,7 +33,6 @@ export class SlashCommandHandler extends Base {
 			if (commands.length > 0) {
 				commandCategories.push(category);
 			}
-
 			for (const command of commands) {
 				// loop through all commands in the category
 				const commandPath = path.join(commandsPath, command);
@@ -43,11 +42,12 @@ export class SlashCommandHandler extends Base {
 				slashCommandsPreprocessed.push(commandData);
 			}
 		}
-		for (const slashCommand of slashCommandsPreprocessed) {
+		for (let slashCommand of slashCommandsPreprocessed) {
 			let { data } = slashCommand;
 
 			if (isFunction(data)) {
 				data = data(this.client);
+				slashCommand = { ...slashCommand, data };
 			}
 
 			const dataInJSON: object & { defaultPermission?: boolean | undefined } =
@@ -67,9 +67,8 @@ export class SlashCommandHandler extends Base {
 				slashCommandsRawData.push(dataInJSON);
 			}
 
-			slashCommands.set(slashCommand.data.name, slashCommand);
+			slashCommands.set(data.name, slashCommand);
 		}
-
 		// register the commands in configured guilds
 		this.client.on("ready", async () => {
 			for (const guildID of config.slashCommandGuildIDs) {

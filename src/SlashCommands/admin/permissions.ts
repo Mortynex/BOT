@@ -9,10 +9,7 @@ import {
 	Role,
 } from "discord.js";
 import Bot from "../../Client";
-import {
-	SlashCommand,
-	SlashCommandInteraction,
-} from "../../Interfaces";
+import { SlashCommand, SlashCommandInteraction } from "../../Interfaces";
 import { slashCommandArgument } from "../../Types";
 
 type CommandRoles = [SlashCommand, Role[]][];
@@ -129,6 +126,7 @@ export const command: SlashCommand = {
 		if (!roleOption || !commandNameOption) {
 			return interaction.followUp("Invalid arguments");
 		}
+		console.log(commandNameOption, guild.commands.cache.entries());
 		const applicationCommmand = guild.commands.cache.find(
 			(command) => command.name === commandNameOption
 		);
