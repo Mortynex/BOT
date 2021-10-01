@@ -31,6 +31,15 @@ export const event: Event = {
 				args.push(option.value);
 			}
 		}
+
+		const guild = interaction.guild;
+
+		if (!guild) {
+			return interaction.followUp({
+				content: "Huh? I cant find this guild",
+			});
+		}
+
 		const member =
 			interaction.guild?.members.cache.get(interaction.user.id) ||
 			(await interaction.guild?.members.fetch(interaction.user.id));
@@ -44,12 +53,18 @@ export const event: Event = {
 		interaction.member = member;
 		const slashCommandInteraction: SlashCommandInteraction = Object.assign(interaction, {
 			member,
+		}) as SlashCommandInteraction;
+		Object.defineProperty(slashCommandInteraction, "guild", {
+			get: function () {
+				return guild;
+			},
 		});
 		try {
 			command.run(client, slashCommandInteraction, args);
 		} catch (e) {
 			console.error(e);
 			console.warn(`Command ${command.data.name} had an error while executing`);
+			interaction.followUp("Command had an error while executing");
 		}
 	},
 };

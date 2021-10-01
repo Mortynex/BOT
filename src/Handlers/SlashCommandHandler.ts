@@ -2,15 +2,26 @@ import path from "path";
 import { readdirSync } from "fs";
 import { SlashCommand } from "../Interfaces";
 import { Base } from "../Classes";
+import {
+	ApplicationCommandPermissionData,
+	GuildApplicationCommandPermissionData,
+} from "discord.js";
+import { command } from "../SlashCommands/admin/ban";
+
+function isFunction(input: any): input is Function {
+	return typeof input === "function";
+}
 
 export class SlashCommandHandler extends Base {
-	init() {
+	async init() {
 		// get all commands
-		const { config, slashCommands } = this.client;
+		const { config, slashCommands, commandCategories } = this.client;
 		const categoriesDirectory = path.join(process.cwd(), "src", "SlashCommands");
 		const categories = readdirSync(categoriesDirectory);
 
-		const slashCommandsData: object[] = [];
+		const slashCommandsRawData: object[] = [];
+		const slashCommandsWithPermissions: SlashCommand[] = [];
+		const slashCommandsPreprocessed: SlashCommand[] = [];
 
 		for (const category of categories) {
 			// loop through all command categories
@@ -19,27 +30,45 @@ export class SlashCommandHandler extends Base {
 				command.endsWith(".ts")
 			);
 
+			if (commands.length > 0) {
+				commandCategories.push(category);
+			}
 			for (const command of commands) {
 				// loop through all commands in the category
 				const commandPath = path.join(commandsPath, command);
-				const commandExport = require(commandPath);
+				const commandExport = await import(commandPath);
 				const commandData: SlashCommand = commandExport.command;
-				const { data } = commandData;
 
-				if (!data) {
-					console.warn(`Invalid command ${command}`);
-					continue;
-				}
-
-				slashCommands.set(data.name, commandData);
-
-				const dataInJSON = data.toJSON();
-				if (dataInJSON) {
-					slashCommandsData.push(dataInJSON);
-				}
+				slashCommandsPreprocessed.push(commandData);
 			}
 		}
+		for (let slashCommand of slashCommandsPreprocessed) {
+			let { data } = slashCommand;
 
+			if (isFunction(data)) {
+				data = data(this.client);
+				slashCommand = { ...slashCommand, data };
+			}
+
+			const dataInJSON: object & { defaultPermission?: boolean | undefined } =
+				data.toJSON();
+
+			if (
+				slashCommand.defaultPermissions !== undefined &&
+				slashCommand.defaultPermissions.length !== 0
+			) {
+				dataInJSON.defaultPermission = false;
+				slashCommandsWithPermissions.push(slashCommand);
+			} else {
+				dataInJSON.defaultPermission = true;
+			}
+
+			if (dataInJSON) {
+				slashCommandsRawData.push(dataInJSON);
+			}
+
+			slashCommands.set(data.name, slashCommand);
+		}
 		// register the commands in configured guilds
 		this.client.on("ready", async () => {
 			for (const guildID of config.slashCommandGuildIDs) {
@@ -52,7 +81,57 @@ export class SlashCommandHandler extends Base {
 					continue;
 				}
 
-				await guild.commands.set(slashCommandsData as any); // :/
+				const slashCommandsDirty = await guild.commands.set(slashCommandsRawData as any); // :/
+
+				const guildPermissions = await guild.commands.permissions.fetch({});
+
+				const commandsWithPermissionsNames = slashCommandsWithPermissions.map(
+					(slashCommand) => slashCommand.data.name
+				);
+				// filter slashCommands to only these which permissions can be configured
+				const slashCommands = slashCommandsDirty.filter((slashCommand) => {
+					return commandsWithPermissionsNames.includes(slashCommand.name);
+				});
+
+				const fullPermissionsPromise: Promise<GuildApplicationCommandPermissionData>[] = [
+					...slashCommands,
+				].map(async ([commandName, command]) => {
+					const guildPermissionsForCommand = guildPermissions.get(command.id);
+					if (guildPermissionsForCommand) {
+						return {
+							id: command.id,
+							permissions: guildPermissionsForCommand,
+						};
+					}
+
+					const roleDefaultPermissions =
+						slashCommandsWithPermissions.find(
+							(slashCommand) => slashCommand.data.name === command.name
+						)?.defaultPermissions || [];
+
+					const roles = await (
+						await guild.roles.fetch()
+					).filter((role) => role.permissions.has(roleDefaultPermissions));
+
+					const permissions: ApplicationCommandPermissionData[] = [...roles].map(
+						([roleName, role]) => ({
+							id: role.id,
+							type: "ROLE",
+							permission: true,
+						})
+					);
+
+					return {
+						id: command.id,
+						permissions,
+					};
+				});
+
+				const fullPermissions = await Promise.all(fullPermissionsPromise);
+
+				await guild.commands.permissions.set({
+					fullPermissions,
+				});
 			}
 		});
 	}

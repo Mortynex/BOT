@@ -4,8 +4,10 @@ interface toJSONFunction {
 
 export type genericSlashCommandBuilder = {
     toJSON: toJSONFunction;
-    name: string;
-    description: string;
+    readonly name: string;
+    readonly description: string;
+    readonly defaultPermission?: boolean | undefined;
+    setDefaultPermission?: (permission: boolean) => any;
 } & {
     [prop: string | number | symbol]: any
 }
