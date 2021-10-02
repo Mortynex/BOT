@@ -1,12 +1,15 @@
 import { Client, Collection } from "discord.js";
-import { Event, SlashCommand, Config } from "../Interfaces";
+import { Event, SlashCommand, Config } from "../Typings/Interfaces";
 import configJson from "../config.json";
-import { SlashCommandHandler, EventHandler } from "../Handlers";
+import { CommandHandler } from "../Handlers";
 import { Database } from "../Database";
+import { DatabaseManager } from "../Extensions/Managers/DatabaseManager";
+import { EventManager } from "../Extensions/Managers/EventManager";
+import { EVENTS_DIR } from "../paths";
 
-class Bot extends Client {
+export default class KittyClient extends Client {
 	public slashCommands: Collection<string, SlashCommand> = new Collection();
-	public events: Collection<string, Event> = new Collection();
+	public events: EventManager;
 	public aliases: Collection<string, SlashCommand> = new Collection();
 	public config: Config = configJson;
 	public database: Database;
@@ -15,16 +18,11 @@ class Bot extends Client {
 	public async init() {
 		this.login(process.env.DISCORD_API_TOKEN);
 
-		const slashCommandHandler = new SlashCommandHandler(this);
-		slashCommandHandler.init();
+		const slashCommandHandler = new CommandHandler(this);
 
-		const eventHandler = new EventHandler(this);
-		eventHandler.init();
+		this.events = new EventManager(this);
+		this.events.load(EVENTS_DIR + "*.ts");
 
-		const database = new Database(this);
-		database.init();
-		this.database = database;
+		this.database = new DatabaseManager(this);
 	}
 }
-
-export default Bot;

@@ -1,2 +1,2 @@
-export { Base } from "./Base";
-export { RepositoryBase } from "./RepositoryBase";
+export { BaseClientManager } from "./BaseClientManager";
+export { BaseRepositoryManager } from "./BaseRepositoryManager";
