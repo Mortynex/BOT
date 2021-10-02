@@ -1,7 +1,7 @@
 import { createConnection } from "typeorm";
 import { Members } from ".";
 import { Base } from "../Classes";
-import { Member } from "../Entities";
+import { Member } from "../entities";
 
 export class Database extends Base {
 	public members: Members;

@@ -1,7 +1,7 @@
 import { PermissionFlags } from "discord.js";
 import { SlashCommandInteraction } from ".";
 import Bot from "../../Client";
-import { CommandArguments, CommandBuilder } from "../Typings";
+import { CommandArguments, CommandBuilder } from "../typings";
 
 interface CommandExecute {
 	(client: Bot, interaction: SlashCommandInteraction, args: CommandArguments): any;

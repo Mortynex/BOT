@@ -1,5 +1,5 @@
 import KittyEvent from "../Classes/Event";
-import { Event } from "../Typings/Interfaces";
+import { Event } from "../typings/interfaces";
 
 export default new KittyEvent({
 	name: "ready",

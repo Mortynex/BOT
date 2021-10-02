@@ -1,6 +1,6 @@
 import path from "path";
 import { readdirSync } from "fs";
-import { SlashCommand } from "../Typings/Interfaces";
+import { SlashCommand } from "../typings/interfaces";
 import { BaseClientManager } from "../Classes";
 import {
 	ApplicationCommandPermissionData,
@@ -27,7 +27,7 @@ export class CommandHandler extends BaseClientManager {
 		for (const category of categories) {
 			// loop through all command categories
 			const commandsPath = path.join(categoriesDirectory, category);
-			const commands = readdirSync(commandsPath).filter((command) =>
+			const commands = readdirSync(commandsPath).filter(command =>
 				command.endsWith(".ts")
 			);
 
@@ -87,10 +87,10 @@ export class CommandHandler extends BaseClientManager {
 				const guildPermissions = await guild.commands.permissions.fetch({});
 
 				const commandsWithPermissionsNames = slashCommandsWithPermissions.map(
-					(slashCommand) => slashCommand.data.name
+					slashCommand => slashCommand.data.name
 				);
 				// filter slashCommands to only these which permissions can be configured
-				const slashCommands = slashCommandsDirty.filter((slashCommand) => {
+				const slashCommands = slashCommandsDirty.filter(slashCommand => {
 					return commandsWithPermissionsNames.includes(slashCommand.name);
 				});
 
@@ -107,12 +107,12 @@ export class CommandHandler extends BaseClientManager {
 
 					const roleDefaultPermissions =
 						slashCommandsWithPermissions.find(
-							(slashCommand) => slashCommand.data.name === command.name
+							slashCommand => slashCommand.data.name === command.name
 						)?.defaultPermissions || [];
 
 					const roles = await (
 						await guild.roles.fetch()
-					).filter((role) => role.permissions.has(roleDefaultPermissions));
+					).filter(role => role.permissions.has(roleDefaultPermissions));
 
 					const permissions: ApplicationCommandPermissionData[] = [...roles].map(
 						([roleName, role]) => ({

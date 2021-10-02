@@ -1,16 +1,16 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Client, GuildMember } from "discord.js";
-import { SlashCommand, SlashCommandInteraction } from "../../Typings/Interfaces";
+import { SlashCommand, SlashCommandInteraction } from "../../typings/interfaces";
 
 export const command: SlashCommand = {
 	data: new SlashCommandBuilder()
 		.setName("kick")
 		.setDescription("kicks a user")
 		.setDefaultPermission(false)
-		.addUserOption((option) =>
+		.addUserOption(option =>
 			option.setName("target").setDescription("user to kick").setRequired(true)
 		)
-		.addStringOption((option) =>
+		.addStringOption(option =>
 			option.setName("reason").setDescription("reason for the kick").setRequired(false)
 		),
 	defaultPermissions: ["KICK_MEMBERS"],

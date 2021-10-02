@@ -1,6 +1,6 @@
-import { Event, SlashCommandInteraction } from "../Typings/Interfaces";
+import { Event, SlashCommandInteraction } from "../typings/interfaces";
 import { ClientEvents, Interaction } from "discord.js";
-import { CommandArguments } from "../Typings";
+import { CommandArguments } from "../typings";
 import KittyEvent from "../Classes/Event";
 
 export default new KittyEvent({

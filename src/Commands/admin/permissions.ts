@@ -9,12 +9,12 @@ import {
 	Role,
 } from "discord.js";
 import Bot from "../../Client";
-import { SlashCommand, SlashCommandInteraction } from "../../Typings/Interfaces";
+import { SlashCommand, SlashCommandInteraction } from "../../typings/interfaces";
 
 type CommandRoles = [SlashCommand, Role[]][];
 
 export const command: SlashCommand = {
-	data: (client) => {
+	data: client => {
 		/* will reimplement this later
 		const choices = [
 			...commands
@@ -36,26 +36,26 @@ export const command: SlashCommand = {
 			.setName("permissions")
 			.setDescription("idk")
 			.setDefaultPermission(false)
-			.addSubcommandGroup((subcommands) =>
+			.addSubcommandGroup(subcommands =>
 				subcommands
 					.setName("action")
 					.setDescription("idk")
-					.addSubcommand((subcommand) =>
+					.addSubcommand(subcommand =>
 						subcommand
 							.setName("list")
 							.setDescription("list all configurable commands and their roles")
 					)
-					.addSubcommand((subcommand) =>
+					.addSubcommand(subcommand =>
 						subcommand
 							.setName("add")
 							.setDescription("add a role to a command")
-							.addRoleOption((role) =>
+							.addRoleOption(role =>
 								role
 									.setName("role")
 									.setRequired(true)
 									.setDescription("role to allow a command")
 							)
-							.addStringOption((command) => {
+							.addStringOption(command => {
 								/*for (const { key, value } of choices) {
 									command.addChoice(key, value);
 								}*/
@@ -65,11 +65,11 @@ export const command: SlashCommand = {
 									.setRequired(true);
 							})
 					)
-					.addSubcommand((subcommand) =>
+					.addSubcommand(subcommand =>
 						subcommand
 							.setName("remove")
 							.setDescription("remove an role from a command")
-							.addStringOption((role) => {
+							.addStringOption(role => {
 								/*for (const { key, value } of choices) {
 									role.addChoice(key, value);
 								}*/
@@ -78,7 +78,7 @@ export const command: SlashCommand = {
 									.setDescription("Command to remove a permission role")
 									.setRequired(true);
 							})
-							.addRoleOption((role) =>
+							.addRoleOption(role =>
 								role
 									.setName("role")
 									.setRequired(true)
@@ -123,7 +123,7 @@ export const command: SlashCommand = {
 		}
 		console.log(commandNameOption, guild.commands.cache.entries());
 		const applicationCommmand = guild.commands.cache.find(
-			(command) => command.name === commandNameOption
+			command => command.name === commandNameOption
 		);
 
 		if (!applicationCommmand) {
@@ -183,7 +183,7 @@ export const command: SlashCommand = {
 function commandRolesToFields(commandRoles: CommandRoles): EmbedFieldData[] {
 	return commandRoles.map(([command, roles]) => ({
 		name: "/" + command.data.name,
-		value: roles.map((role) => role.toString()).join(", "),
+		value: roles.map(role => role.toString()).join(", "),
 	}));
 }
 

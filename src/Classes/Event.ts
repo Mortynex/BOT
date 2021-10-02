@@ -1,5 +1,5 @@
 import { ClientEvents } from "discord.js";
-import { Event, EventExecute } from "../Typings/Interfaces";
+import { Event, EventExecute } from "../typings/interfaces";
 
 export default class KittyEvent<Name extends keyof ClientEvents> {
 	public name: Name;

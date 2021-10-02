@@ -1,1 +1,1 @@
-export * from "./Typings";
+export * from "./typings";
