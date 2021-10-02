@@ -5,9 +5,8 @@ export default class KittyEvent<Name extends keyof ClientEvents> {
 	public name: Name;
 	public handler: EventExecute<Name>;
 
-	constructor({ name, execute }: Event<Name>) {
+	constructor(name: Name) {
 		this.name = name;
-		this.handler = execute;
 	}
 	setName(name: Name) {
 		return (this.name = name);

@@ -3,9 +3,8 @@ import { ClientEvents, Interaction } from "discord.js";
 import { CommandArguments } from "../typings";
 import KittyEvent from "../Classes/Event";
 
-export default new KittyEvent({
-	name: "interactionCreate",
-	async execute(client, interaction) {
+export default new KittyEvent("interactionCreate").setHandler(
+	async (client, interaction) => {
 		if (!interaction.isCommand()) return;
 
 		const command = client.slashCommands.get(interaction.commandName);
@@ -67,5 +66,5 @@ export default new KittyEvent({
 			console.warn(`Command ${command.data.name} had an error while executing`);
 			interaction.followUp("Command had an error while executing");
 		}
-	},
-});
+	}
+);

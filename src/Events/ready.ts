@@ -1,9 +1,5 @@
 import KittyEvent from "../Classes/Event";
-import { Event } from "../typings/interfaces";
 
-export default new KittyEvent({
-	name: "ready",
-	execute(client) {
-		console.log(`kittyhawk is ready, running as ${client.user?.tag}`);
-	},
+export default new KittyEvent("ready").setHandler(client => {
+	console.log(`kittyhawk is ready, running as ${client.user?.tag}`);
 });
