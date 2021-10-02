@@ -1,8 +1,9 @@
-import { Event } from "../Interfaces";
+import KittyEvent from "../Classes/Event";
+import { Event } from "../Typings/Interfaces";
 
-export const event: Event = {
+export default new KittyEvent({
 	name: "ready",
-	run(client) {
+	execute(client) {
 		console.log(`kittyhawk is ready, running as ${client.user?.tag}`);
 	},
-};
+});

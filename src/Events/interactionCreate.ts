@@ -1,10 +1,11 @@
-import { Event, SlashCommandInteraction } from "../Interfaces";
-import { Interaction } from "discord.js";
-import { slashCommandArgument } from "../Types";
+import { Event, SlashCommandInteraction } from "../Typings/Interfaces";
+import { ClientEvents, Interaction } from "discord.js";
+import { CommandArguments } from "../Typings";
+import KittyEvent from "../Classes/Event";
 
-export const event: Event = {
+export default new KittyEvent({
 	name: "interactionCreate",
-	async run(client, interaction: Interaction) {
+	async execute(client, interaction) {
 		if (!interaction.isCommand()) return;
 
 		const command = client.slashCommands.get(interaction.commandName);
@@ -15,16 +16,16 @@ export const event: Event = {
 		}
 
 		await interaction
-			.deferReply({ ephemeral: command.ephermal || client.config.ephermalAsDefault })
+			.deferReply({ ephemeral: command.ephemeral || client.config.ephermalAsDefault })
 			.catch(() => {});
 
-		const args: slashCommandArgument[] = [];
+		const args: CommandArguments = [];
 
 		for (let option of interaction.options.data) {
 			if (option.type === "SUB_COMMAND") {
 				option.name ? args.push(option.name) : null;
 
-				option.options?.forEach((subOption) => {
+				option.options?.forEach(subOption => {
 					subOption.value ? args.push(subOption.value) : null;
 				});
 			} else if (option.value) {
@@ -67,4 +68,4 @@ export const event: Event = {
 			interaction.followUp("Command had an error while executing");
 		}
 	},
-};
+});

@@ -1,10 +1,11 @@
-import Bot from "../../Client";
+import { ClientEvents } from "discord.js";
+import KittyClient from "../../Client";
 
-interface EventRun {
-	(client: Bot, ...args: any[]);
+export interface EventExecute<Name extends keyof ClientEvents> {
+	(client: KittyClient, ...args: ClientEvents[Name]): any;
 }
 
-export interface Event {
-	name: string;
-	run: EventRun;
+export interface Event<Name extends keyof ClientEvents> {
+	name: Name;
+	execute: (client: KittyClient, ...args: ClientEvents[Name]) => any;
 }
