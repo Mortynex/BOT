@@ -1,4 +1,4 @@
-import { RepositoryBase } from "../Classes";
+import { BaseRepositoryManager } from "../Classes";
 import { Member } from "../Entities";
 
-export class Members extends RepositoryBase<Member> {}
+export class MembersManager extends BaseRepositoryManager<Member> {}
