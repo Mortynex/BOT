@@ -1,7 +1,7 @@
 import { createConnection } from "typeorm";
-import { Members } from "../../Database";
-import { BaseClientManager } from "../../Classes";
-import { Member } from "../../Entities";
+import { Members } from "../Database";
+import { BaseClientManager } from "../Classes";
+import { Member } from "../Entities";
 
 export class DatabaseManager extends BaseClientManager {
 	public members: Members;

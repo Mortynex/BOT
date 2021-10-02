@@ -3,8 +3,8 @@ import { Event, SlashCommand, Config } from "../Typings/Interfaces";
 import configJson from "../config.json";
 import { CommandHandler } from "../Handlers";
 import { Database } from "../Database";
-import { DatabaseManager } from "../Extensions/Managers/DatabaseManager";
-import { EventManager } from "../Extensions/Managers/EventManager";
+import { DatabaseManager } from "../Managers/DatabaseManager";
+import { EventManager } from "../Managers/EventManager";
 import { EVENTS_DIR } from "../paths";
 
 export default class KittyClient extends Client {

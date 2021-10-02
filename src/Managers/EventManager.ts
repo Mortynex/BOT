@@ -1,8 +1,7 @@
-import { Event } from "../../Typings/Interfaces";
 import globRead from "tiny-glob";
 import { Collection } from "discord.js";
-import { BaseClientManager } from "../../Classes";
-import KittyEvent from "../../Classes/Event";
+import { BaseClientManager } from "../Classes";
+import KittyEvent from "../Classes/Event";
 
 export class EventManager extends BaseClientManager {
 	public cache: Collection<string, KittyEvent<any>> = new Collection();
