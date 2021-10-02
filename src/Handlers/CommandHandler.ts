@@ -1,22 +1,23 @@
 import path from "path";
 import { readdirSync } from "fs";
-import { SlashCommand } from "../Interfaces";
-import { Base } from "../Classes";
+import { SlashCommand } from "../Typings/Interfaces";
+import { BaseClientManager } from "../Classes";
 import {
 	ApplicationCommandPermissionData,
 	GuildApplicationCommandPermissionData,
 } from "discord.js";
-import { command } from "../SlashCommands/admin/ban";
 
 function isFunction(input: any): input is Function {
 	return typeof input === "function";
 }
 
-export class SlashCommandHandler extends Base {
+export class CommandHandler extends BaseClientManager {
 	async init() {
 		// get all commands
 		const { config, slashCommands, commandCategories } = this.client;
-		const categoriesDirectory = path.join(process.cwd(), "src", "SlashCommands");
+		const categoriesDirectory = path.join(process.cwd(), "src", "Commands");
+		console.log({ categoriesDirectory });
+		//throw new Error();
 		const categories = readdirSync(categoriesDirectory);
 
 		const slashCommandsRawData: object[] = [];

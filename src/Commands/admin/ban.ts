@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Client, GuildMember } from "discord.js";
-import { SlashCommand, SlashCommandInteraction } from "../../Interfaces";
-import { slashCommandArgument } from "../../Types";
+import { SlashCommand } from "../../Typings/Interfaces";
 
 export const command: SlashCommand = {
 	data: new SlashCommandBuilder()
@@ -15,11 +14,7 @@ export const command: SlashCommand = {
 			option.setName("reason").setDescription("reason for the ban").setRequired(false)
 		),
 	defaultPermissions: ["BAN_MEMBERS"],
-	run(
-		client: Client,
-		interaction: SlashCommandInteraction,
-		args: slashCommandArgument[]
-	) {
+	run(client, interaction, args) {
 		const { member, options } = interaction;
 		const target = options.getMember("target");
 		const reason = options.getString("reason");

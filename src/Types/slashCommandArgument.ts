@@ -1,1 +1,0 @@
-export type slashCommandArgument = string | boolean | number

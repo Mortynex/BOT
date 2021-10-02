@@ -1,18 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Client } from "discord.js";
-import { SlashCommand, SlashCommandInteraction } from "../../Interfaces";
-import { slashCommandArgument } from "../../Types";
+import { SlashCommand } from "../../Typings/Interfaces";
 
 export const command: SlashCommand = {
 	data: new SlashCommandBuilder()
 		.setName("ping")
 		.setDescription("pings you back")
 		.setDefaultPermission(true),
-	run(
-		client: Client,
-		interaction: SlashCommandInteraction,
-		args: slashCommandArgument[]
-	) {
+	run(client, interaction, args) {
 		interaction.followUp({
 			content: "Pong!",
 		});

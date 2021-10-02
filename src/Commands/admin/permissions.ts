@@ -9,8 +9,7 @@ import {
 	Role,
 } from "discord.js";
 import Bot from "../../Client";
-import { SlashCommand, SlashCommandInteraction } from "../../Interfaces";
-import { slashCommandArgument } from "../../Types";
+import { SlashCommand, SlashCommandInteraction } from "../../Typings/Interfaces";
 
 type CommandRoles = [SlashCommand, Role[]][];
 
@@ -89,11 +88,7 @@ export const command: SlashCommand = {
 			);
 	},
 	defaultPermissions: ["ADMINISTRATOR"],
-	async run(
-		client: Bot,
-		interaction: SlashCommandInteraction,
-		args: slashCommandArgument[]
-	) {
+	async run(client, interaction, args) {
 		const { guild } = interaction;
 		const action = interaction.options.getSubcommand();
 

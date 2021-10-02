@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Client, GuildMember } from "discord.js";
-import { SlashCommand, SlashCommandInteraction } from "../../Interfaces";
-import { slashCommandArgument } from "../../Types";
+import { SlashCommand, SlashCommandInteraction } from "../../Typings/Interfaces";
 
 export const command: SlashCommand = {
 	data: new SlashCommandBuilder()
@@ -14,12 +13,8 @@ export const command: SlashCommand = {
 		.addStringOption((option) =>
 			option.setName("reason").setDescription("reason for the kick").setRequired(false)
 		),
-	defaultPermissions: ['KICK_MEMBERS'],
-	run(
-		client: Client,
-		interaction: SlashCommandInteraction,
-		args: slashCommandArgument[]
-	) {
+	defaultPermissions: ["KICK_MEMBERS"],
+	run(client, interaction, args) {
 		const { member, options } = interaction;
 		const target = options.getMember("target");
 		const reason = options.getString("reason");
