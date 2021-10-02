@@ -2,7 +2,6 @@ import { Client, Collection } from "discord.js";
 import { Event, SlashCommand, Config } from "../typings/interfaces";
 import configJson from "../config.json";
 import { CommandHandler } from "../Handlers";
-import { Database } from "../Database";
 import { DatabaseManager } from "../managers/DatabaseManager";
 import { EventManager } from "../managers/EventManager";
 import { EVENTS_DIR } from "../paths";
@@ -12,7 +11,7 @@ export default class KittyClient extends Client {
 	public events: EventManager;
 	public aliases: Collection<string, SlashCommand> = new Collection();
 	public config: Config = configJson;
-	public database: Database;
+	public database: DatabaseManager;
 	public commandCategories: string[] = [];
 
 	public async init() {

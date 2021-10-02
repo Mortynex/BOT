@@ -10,7 +10,7 @@ export class EventManager extends BaseClientManager {
 		const events = await globRead(glob, { absolute: true });
 
 		for (const eventPath of events) {
-			const event = (await import(eventPath)) as KittyEvent<any>;
+			const event = (await import(eventPath)).default as KittyEvent<any>;
 			const { name, handler } = event;
 
 			if (!name || !handler) {

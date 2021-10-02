@@ -1,10 +1,10 @@
 import { createConnection } from "typeorm";
-import { Members } from "../Database";
+import { MembersManager } from "../Database";
 import { BaseClientManager } from "../Classes";
 import { Member } from "../entities";
 
 export class DatabaseManager extends BaseClientManager {
-	public members: Members;
+	public members: MembersManager;
 
 	async init() {
 		await createConnection({
@@ -13,6 +13,6 @@ export class DatabaseManager extends BaseClientManager {
 			entities: [Member],
 		});
 
-		this.members = new Members(Member);
+		this.members = new MembersManager(Member);
 	}
 }

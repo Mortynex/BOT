@@ -1,2 +1,1 @@
-export { Database } from "./Database";
-export { Members } from "./Members";
+export { MembersManager } from "../managers/MembersManager";
