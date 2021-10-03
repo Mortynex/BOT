@@ -1,19 +1,22 @@
 import globRead from "tiny-glob";
-import { Collection } from "discord.js";
-import { BaseClientManager } from "../Classes";
-import KittyEvent from "../Classes/Event";
+import { CacheManager, ClientManager } from ".";
+import { mix } from "ts-mixer";
+import { Event } from "../typings/interfaces";
 
-export class EventManager extends BaseClientManager {
-	public cache: Collection<string, KittyEvent<any>> = new Collection();
+export interface EventManager extends CacheManager<string, any>, ClientManager {}
 
+type KittyEvent = Event<any>;
+
+@mix(CacheManager)
+export class EventManager extends ClientManager {
 	async load(glob: string) {
 		const events = await globRead(glob, { absolute: true });
 
 		for (const eventPath of events) {
-			const event = (await import(eventPath)).default as KittyEvent<any>;
-			const { name, handler } = event;
+			const event = (await import(eventPath)).default as KittyEvent;
+			const { name, execute } = event;
 
-			if (!name || !handler) {
+			if (!name || !execute) {
 				console.warn(`Event ${name} is missing properties`);
 				continue;
 			}
@@ -22,11 +25,11 @@ export class EventManager extends BaseClientManager {
 		}
 	}
 
-	add(event: KittyEvent<any>) {
-		const { name, handler } = event;
+	add(event: KittyEvent) {
+		const { name, execute } = event;
 
 		this.cache.set(name, event);
-		this.client.on(name, handler.bind(null, this.client));
+		this.client.on(name, execute.bind(null, this.client));
 	}
 
 	/* remove(){
