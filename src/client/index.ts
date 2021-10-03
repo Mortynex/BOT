@@ -1,23 +1,29 @@
 import { Client, Collection } from "discord.js";
-import { Event, SlashCommand, Config } from "../typings/interfaces";
-import configJson from "../config.json";
-import { CommandHandler } from "../Handlers";
-import { DatabaseManager } from "../managers/DatabaseManager";
-import { EventManager } from "../managers/EventManager";
+import { Config } from "../typings/interfaces";
+import { config } from "../config";
+import { EventManager, DatabaseManager } from "../managers";
 import { EVENTS_DIR } from "../paths";
+import { CommandManager } from "../managers";
 
 export default class KittyClient extends Client {
-	public slashCommands: Collection<string, SlashCommand> = new Collection();
 	public events: EventManager;
-	public aliases: Collection<string, SlashCommand> = new Collection();
-	public config: Config = configJson;
+	public config: Config = config;
 	public database: DatabaseManager;
-	public commandCategories: string[] = [];
+	public environment: "production" | "development";
+	public commands: CommandManager;
 
 	public async init() {
-		this.login(process.env.DISCORD_API_TOKEN);
+		const { DISCORD_API_TOKEN, NODE_ENV } = process.env;
+		if (NODE_ENV === "production") {
+			this.environment = "production";
+		} else {
+			this.environment = "development";
+		}
 
-		const slashCommandHandler = new CommandHandler(this);
+		this.login(DISCORD_API_TOKEN);
+
+		this.commands = new CommandManager(this);
+		this.commands.load();
 
 		this.events = new EventManager(this);
 		this.events.load(EVENTS_DIR + "*.ts");
