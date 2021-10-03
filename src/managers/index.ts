@@ -4,3 +4,6 @@ export * from "./DatabaseManager";
 export * from "./EventManager";
 export * from "./MembersManager";
 export * from "./PermissionsManager";
+export * from "./ClientManager";
+export * from "./RepositoryManager";
+export * from "./CacheManager";

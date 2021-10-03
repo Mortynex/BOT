@@ -1,9 +1,9 @@
 import { createConnection } from "typeorm";
-import { MembersManager } from "../Database";
-import { BaseClientManager } from "../Classes";
+import { MembersManager } from "../database";
 import { Member } from "../entities";
+import { ClientManager } from "./ClientManager";
 
-export class DatabaseManager extends BaseClientManager {
+export class DatabaseManager extends ClientManager {
 	public members: MembersManager;
 
 	async init() {
