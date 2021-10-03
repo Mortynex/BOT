@@ -1,15 +1,17 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Client } from "discord.js";
-import { SlashCommand } from "../../typings/interfaces";
+import { CommandBuilder } from "../../typings";
+import { CommandExecute } from "../../typings/interfaces";
 
-export const command: SlashCommand = {
-	data: new SlashCommandBuilder()
-		.setName("ping")
-		.setDescription("pings you back")
-		.setDefaultPermission(true),
-	run(client, interaction, args) {
-		interaction.followUp({
-			content: "Pong!",
-		});
-	},
+export const interaction: CommandBuilder = new SlashCommandBuilder()
+	.setName("ping")
+	.setDescription("pings you back")
+	.setDefaultPermission(true);
+
+export const options = {
+	epheremal: true,
+	permissionFlags: ["administrator"],
+};
+
+export const execute: CommandExecute = (client, interaction) => {
+	interaction;
 };

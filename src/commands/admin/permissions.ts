@@ -9,9 +9,9 @@ import {
 	Role,
 } from "discord.js";
 import Bot from "../../Client";
-import { SlashCommand, SlashCommandInteraction } from "../../typings/interfaces";
+import { SlashCommandInteraction } from "../../typings/interfaces";
 
-type CommandRoles = [SlashCommand, Role[]][];
+type CommandRoles = [Command, Role[]][];
 
 export const command: SlashCommand = {
 	data: client => {
