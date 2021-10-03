@@ -1,19 +1,24 @@
 import { PermissionFlags } from "discord.js";
 import { SlashCommandInteraction } from ".";
+import { CommandPermissionFlag } from "..";
 import Bot from "../../Client";
-import { CommandArguments, CommandBuilder } from "../typings";
+import { CommandBuilder } from "../typings";
 
-interface CommandExecute {
-	(client: Bot, interaction: SlashCommandInteraction, args: CommandArguments): any;
+export interface Command {
+	interaction: CommandBuilder | CommandInteractionFunction;
+	execute: CommandExecute;
+	options?: CommandOptions;
 }
 
-interface CommandDataFunction {
-	(client: Bot): CommandBuilder;
+export interface CommandExecute {
+	(client: Bot, interaction: SlashCommandInteraction): any;
 }
 
-export interface SlashCommand {
-	run: CommandExecute;
-	data: CommandBuilder | CommandDataFunction;
-	ephemeral?: boolean;
-	defaultPermissions?: (keyof PermissionFlags)[];
+export interface CommandInteractionFunction {
+	(client: Bot): CommandBuilder | Promise<CommandBuilder>;
+}
+
+export interface CommandOptions {
+	ephemeral: boolean;
+	permissionFlags: CommandPermissionFlag[];
 }

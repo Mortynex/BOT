@@ -1,4 +1,4 @@
-export { Config } from "./Config";
-export { Event, EventExecute } from "./Event";
-export { SlashCommand } from "./Command";
-export { SlashCommandInteraction } from "./CommandInteraction";
+export * from "./Config";
+export * from "./Event";
+export * from "./Command";
+export * from "./SlashCommandInteraction";
