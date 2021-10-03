@@ -3,6 +3,7 @@ import {
 	SlashCommandOptionsOnlyBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
+import { PermissionFlags } from "discord.js";
 
 export type BotHandlerOptions = Partial<{
 	ephermalReply: boolean;
@@ -16,4 +17,4 @@ export type CommandBuilder =
 	| SlashCommandSubcommandsOnlyBuilder
 	| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 
-export type CommandArguments = (string | boolean | number)[];
+export type CommandPermissionFlag = keyof PermissionFlags;
