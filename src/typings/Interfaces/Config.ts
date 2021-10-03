@@ -1,5 +1,7 @@
+import { CommandOptions } from ".";
+
 export interface Config {
-	slashCommandGuildIDs: string[];
 	ephermalAsDefault: boolean;
 	handlerLifespan: string;
+	defaultCommandOptions: CommandOptions;
 }
