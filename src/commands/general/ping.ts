@@ -8,8 +8,7 @@ export const interaction: CommandBuilder = new SlashCommandBuilder()
 	.setDefaultPermission(true);
 
 export const options = {
-	epheremal: true,
-	permissionFlags: ["administrator"],
+	epheremal: true
 };
 
 export const execute: CommandExecute = (client, interaction) => {
