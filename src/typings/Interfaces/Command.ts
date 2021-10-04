@@ -1,7 +1,7 @@
 import { PermissionFlags } from "discord.js";
 import { SlashCommandInteraction } from ".";
 import { CommandPermissionFlag } from "..";
-import Bot from "../../Client";
+import Bot from "../../kittyclient";
 import { CommandBuilder } from "../typings";
 
 export interface Command {

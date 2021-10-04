@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import ms from "ms";
 import { getClientInstance } from "..";
-import Bot from "../Client";
+import Bot from "../kittyclient";
 import { BotHandlerOptions } from "../Types";
 
 export class BotMessageButton extends MessageButton {

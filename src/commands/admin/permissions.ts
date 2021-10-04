@@ -8,7 +8,7 @@ import {
 	MessageEmbed,
 	Role,
 } from "discord.js";
-import Bot from "../../Client";
+import Bot from "../../kittyclient";
 import { SlashCommandInteraction } from "../../typings/interfaces";
 
 type CommandRoles = [Command, Role[]][];

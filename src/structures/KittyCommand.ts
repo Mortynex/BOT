@@ -1,5 +1,5 @@
 import { ApplicationCommandData } from "discord.js";
-import KittyClient from "../Client";
+import KittyClient from "../kittyclient";
 import { CommandBuilder } from "../typings";
 import {
 	CommandExecute,

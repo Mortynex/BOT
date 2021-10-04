@@ -5,7 +5,7 @@ import {
 	Interaction,
 } from "discord.js";
 import { getClientInstance } from "..";
-import Bot from "../Client";
+import Bot from "../kittyclient";
 import ms from "ms";
 import { BotHandlerOptions } from "../Types";
 

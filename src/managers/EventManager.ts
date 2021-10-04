@@ -2,10 +2,9 @@ import globRead from "tiny-glob";
 import { CacheManager, ClientManager } from ".";
 import { mix } from "ts-mixer";
 import { Event } from "../typings/interfaces";
+import { KittyEvent } from "../structures/KittyEvent";
 
-export interface EventManager extends CacheManager<string, any>, ClientManager {}
-
-type KittyEvent = Event<any>;
+export interface EventManager extends CacheManager<string, KittyEvent>, ClientManager {}
 
 @mix(CacheManager)
 export class EventManager extends ClientManager {
@@ -13,7 +12,7 @@ export class EventManager extends ClientManager {
 		const events = await globRead(glob, { absolute: true });
 
 		for (const eventPath of events) {
-			const event = (await import(eventPath)).default as KittyEvent;
+			const event = (await import(eventPath)) as Event<any>;
 			const { name, execute } = event;
 
 			if (!name || !execute) {
@@ -21,18 +20,26 @@ export class EventManager extends ClientManager {
 				continue;
 			}
 
-			this.add(event);
+			const kittyEvent = new KittyEvent({
+				name,
+				handler: execute,
+			});
+
+			this.add(kittyEvent);
 		}
 	}
 
 	add(event: KittyEvent) {
-		const { name, execute } = event;
+		this.cache.set(event.name, event);
 
-		this.cache.set(name, event);
-		this.client.on(name, execute.bind(null, this.client));
+		event.subscribe(this.client);
 	}
 
-	/* remove(){
+	remove(event: KittyEvent): boolean {
+		const deletedInCache = this.cache.delete(event.name);
 
-	} */
+		const unsubscribedFromEvent = event.unsubcribe(this.client);
+
+		return unsubscribedFromEvent && deletedInCache;
+	}
 }

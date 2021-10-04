@@ -14,7 +14,7 @@ import { mix } from "ts-mixer";
 import { Command } from "../typings/interfaces";
 import { isPromise } from "util/types";
 import { isFunction, isValidId } from "../util/validators";
-import KittyClient from "../Client";
+import KittyClient from "../kittyclient";
 import { CommandBuilder } from "../typings";
 import { KittyCommand } from "../structures";
 
@@ -50,13 +50,13 @@ export class CommandManager extends ClientManager {
 		}
 	}
 
-    get categories(){
-        return this._categories
-    }
+	get categories() {
+		return this._categories;
+	}
 
-    get permissions(){
-        return this._permissions;
-    }
+	get permissions() {
+		return this._permissions;
+	}
 
 	async load() {
 		// get all commands

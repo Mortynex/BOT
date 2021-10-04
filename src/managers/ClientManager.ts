@@ -1,4 +1,4 @@
-import KittyClient from "../Client";
+import KittyClient from "../kittyclient";
 
 export abstract class ClientManager {
 	constructor(client: KittyClient) {
