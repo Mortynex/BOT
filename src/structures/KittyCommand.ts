@@ -1,4 +1,5 @@
 import { ApplicationCommandData } from "discord.js";
+import { getClientInstance } from "..";
 import KittyClient from "../kittyclient";
 import { CommandBuilder } from "../typings";
 import {
@@ -18,7 +19,7 @@ export class KittyCommand {
 	private _id: string | null = null;
 	private _name: string;
 	private _description: string;
-	private _options: CommandOptions;
+	private _options: Required<CommandOptions>;
 	private _data: ApplicationCommandData;
 	private _execute: CommandExecute;
 
@@ -55,7 +56,7 @@ export class KittyCommand {
 
 		this._name = name;
 		this._description = description;
-		this._options = options;
+		this._options = { ...getClientInstance().config.defaultCommandOptions ,...options};
 		this._execute = execute;
 
 		if (id) {

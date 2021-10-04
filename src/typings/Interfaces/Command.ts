@@ -19,6 +19,6 @@ export interface CommandInteractionFunction {
 }
 
 export interface CommandOptions {
-	ephemeral: boolean;
-	permissionFlags: CommandPermissionFlag[];
+	ephemeral?: boolean;
+	permissionFlags?: CommandPermissionFlag[];
 }
