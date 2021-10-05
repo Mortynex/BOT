@@ -6,5 +6,6 @@ export const config: Config = {
 	defaultCommandOptions: {
 		ephemeral: false,
 		permissionFlags: [],
+		ownerOnly: false,
 	},
 };

@@ -1,5 +1,4 @@
 import { EventExecute, EventName, SlashCommandInteraction } from "../typings/interfaces";
-import { ClientEvents, Interaction } from "discord.js";
 
 export const name: EventName = "interactionCreate";
 
@@ -33,15 +32,23 @@ export const execute: EventExecute<typeof name> = async (client, interaction) =>
 		});
 	}
 
+	if (command.isOwnerOnly() && guild.ownerId !== member.user.id) {
+		return interaction.followUp({
+			content: "This command is owner only!",
+		});
+	}
+
 	interaction.member = member;
 	const slashCommandInteraction: SlashCommandInteraction = Object.assign(interaction, {
 		member,
 	}) as SlashCommandInteraction;
+
 	Object.defineProperty(slashCommandInteraction, "guild", {
 		get: function () {
 			return guild;
 		},
 	});
+
 	try {
 		command.execute(client, slashCommandInteraction);
 	} catch (e) {

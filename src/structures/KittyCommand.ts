@@ -56,7 +56,7 @@ export class KittyCommand {
 
 		this._name = name;
 		this._description = description;
-		this._options = { ...getClientInstance().config.defaultCommandOptions ,...options};
+		this._options = { ...getClientInstance().config.defaultCommandOptions, ...options };
 		this._execute = execute;
 
 		if (id) {
@@ -70,6 +70,10 @@ export class KittyCommand {
 
 	setId(newId: string) {
 		this._id = newId;
+	}
+
+	isOwnerOnly(): boolean {
+		return this.options.ownerOnly;
 	}
 
 	execute(client: KittyClient, interaction: SlashCommandInteraction) {
