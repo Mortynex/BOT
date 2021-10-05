@@ -3,13 +3,14 @@ import { CacheManager, ClientManager } from ".";
 import { mix } from "ts-mixer";
 import { Event } from "../typings/interfaces";
 import { KittyEvent } from "../structures/KittyEvent";
+import { EVENTS_DIR } from "../paths";
 
 export interface EventManager extends CacheManager<string, KittyEvent>, ClientManager {}
 
 @mix(CacheManager)
 export class EventManager extends ClientManager {
-	async load(glob: string) {
-		const events = await globRead(glob, { absolute: true });
+	async load() {
+		const events = await globRead(EVENTS_DIR, { absolute: true });
 
 		for (const eventPath of events) {
 			const event = (await import(eventPath)) as Event<any>;

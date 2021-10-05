@@ -26,7 +26,7 @@ export default class KittyClient extends Client {
 		this.commands.load();
 
 		this.events = new EventManager(this);
-		this.events.load(EVENTS_DIR + "*.ts");
+		this.events.load();
 
 		this.database = new DatabaseManager(this);
 	}
