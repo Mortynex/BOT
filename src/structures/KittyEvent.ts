@@ -26,7 +26,7 @@ export class KittyEvent {
 	}
 
 	subscribe(client: KittyClient): boolean {
-		if (!this._subscribed === true) {
+		if (this._subscribed === true) {
 			return false;
 		}
 

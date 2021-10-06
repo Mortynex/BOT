@@ -1,5 +1,6 @@
 import globRead from "tiny-glob";
-import { CacheManager, ClientManager } from ".";
+import { ClientManager } from "./ClientManager";
+import { CacheManager } from "./CacheManager";
 import { mix } from "ts-mixer";
 import { Event } from "../typings/interfaces";
 import { KittyEvent } from "../structures/KittyEvent";
@@ -23,7 +24,7 @@ export class EventManager extends ClientManager {
 
 			const kittyEvent = new KittyEvent({
 				name,
-				handler: execute,
+				handler: execute.bind(null, this.client),
 			});
 
 			this.add(kittyEvent);
@@ -33,7 +34,7 @@ export class EventManager extends ClientManager {
 	add(event: KittyEvent) {
 		this.cache.set(event.name, event);
 
-		event.subscribe(this.client);
+		console.log(event.subscribe(this.client));
 	}
 
 	remove(event: KittyEvent): boolean {
