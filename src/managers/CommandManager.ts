@@ -128,7 +128,7 @@ export class CommandManager extends ClientManager {
 		}
 		try {
 			const applicationCommands = await this._applicationManager.set(
-				this._getApplicationCommandData()
+				clear ? [] : this._getApplicationCommandData()
 			);
 
 			applicationCommands.forEach(applicationCommand => {
