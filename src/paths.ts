@@ -1,3 +1,3 @@
-export const COMMANDS_CATEGORIES_DIR = "src/Commands/*/";
-export const COMMANDS_DIR = "src/Commands/*/*.ts";
-export const EVENTS_DIR = "src/Events/*.ts";
+export const COMMANDS_CATEGORIES_DIR = "src/commands/*";
+export const COMMANDS_DIR = "src/commands/*/*.ts";
+export const EVENTS_DIR = "src/events/*.ts";
