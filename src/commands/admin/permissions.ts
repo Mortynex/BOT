@@ -88,17 +88,20 @@ export const execute: CommandExecute = async (client, interaction) => {
 			...commandPermissions,
 		]);
 
-		/* 	const fields: EmbedFieldData[] = commandRolesToFields(commands);
+		/*const fields: EmbedFieldData[] = commandPermissions.reduce(
+			(commands, permissions, commandID) => {
+				const command = 
+			},
+			[]
+		);*/
 
-			const permissionsEmbed = new MessageEmbed()
-				.setTitle("Permissions")
-				.setFields(fields);
+		/* const permissionsEmbed = new MessageEmbed().setTitle("Permissions").setFields(fields);
 
-			interaction.followUp({
-				embeds: [permissionsEmbed],
-			});
-
-			return; */
+		interaction.followUp({
+			embeds: [permissionsEmbed],
+		});
+ */
+		return;
 	}
 
 	const roleOption = interaction.options.getRole("role");
