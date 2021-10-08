@@ -5,6 +5,7 @@ import {
 	ApplicationCommandData,
 	ApplicationCommandManager,
 	ApplicationCommandPermissionData,
+	BaseFetchOptions,
 	GuildApplicationCommandManager,
 	GuildApplicationCommandPermissionData,
 } from "discord.js";
@@ -22,14 +23,14 @@ export interface CommandManager
 	extends CacheManager<string, KittyCommand>,
 		ClientManager {}
 
-@mix(CacheManager)
-export class CommandManager extends ClientManager {
+@mix(CacheManager, ClientManager)
+export class CommandManager {
 	private _permissions: PermissionManager;
-	private _categories: Set<string>;
+	private _categories: Set<string> = new Set();
 	private _applicationManager: ApplicationCommandManager | GuildApplicationCommandManager;
 
 	constructor(client: KittyClient) {
-		super(client);
+		this.client = client;
 
 		this._permissions = new PermissionManager(this.client);
 
@@ -99,14 +100,49 @@ export class CommandManager extends ClientManager {
 			}
 		}
 
+		const commands = await this.fetch();
+		const commandsNeedsUpdate = commands?.reduce<boolean>((state, { id, name }) => {
+			const kittyCommand = this.cache.find(kcommand => kcommand.name === name);
+
+			if (!kittyCommand) {
+				return true;
+			}
+
+			if (kittyCommand.hasId() && kittyCommand.id !== id) {
+				return true;
+			}
+
+			if (!kittyCommand.hasId()) {
+				kittyCommand.setId(id);
+			}
+
+			return state === false ? false : true;
+		}, false);
+
+		if (this.client.environment === "development" && commandsNeedsUpdate) {
+			this.put();
+		} else if (this.client.environment === "production" && commandsNeedsUpdate) {
+			console.log("COMMANDS ARE OUT OF DATE, UPDATE THEM IF POSSIBLE");
+		}
 		// register the commands in configured guilds
 	}
 
+	fetch(id?: string, options?: BaseFetchOptions) {
+		const isGuildManager = (manager: any): manager is GuildApplicationCommandManager =>
+			Boolean(manager?.guild);
+
+		return isGuildManager(this._applicationManager)
+			? this._applicationManager?.fetch(undefined, options)
+			: this._applicationManager?.fetch(id, options);
+	}
+
 	put() {
+		console.log("Updating commands...");
 		return this._put();
 	}
 
 	clear() {
+		console.log("Clearing commands...");
 		return this._put(true);
 	}
 
@@ -126,6 +162,7 @@ export class CommandManager extends ClientManager {
 		if (!clientUser) {
 			return false;
 		}
+
 		try {
 			const applicationCommands = await this._applicationManager.set(
 				clear ? [] : this._getApplicationCommandData()
