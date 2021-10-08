@@ -8,9 +8,9 @@ export const interaction: CommandBuilder = new SlashCommandBuilder()
 	.setDefaultPermission(true);
 
 export const options = {
-	epheremal: true
+	epheremal: true,
 };
 
 export const execute: CommandExecute = (client, interaction) => {
-	interaction;
+	interaction.followUp("pong!");
 };
