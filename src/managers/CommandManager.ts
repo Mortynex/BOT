@@ -100,31 +100,7 @@ export class CommandManager {
 			}
 		}
 
-		const commands = await this.fetch();
-		const commandsNeedsUpdate = commands?.reduce<boolean>((state, { id, name }) => {
-			const kittyCommand = this.cache.find(kcommand => kcommand.name === name);
-
-			if (!kittyCommand) {
-				return true;
-			}
-
-			if (kittyCommand.hasId() && kittyCommand.id !== id) {
-				return true;
-			}
-
-			if (!kittyCommand.hasId()) {
-				kittyCommand.setId(id);
-			}
-
-			return state === false ? false : true;
-		}, false);
-
-		if (this.client.environment === "development" && commandsNeedsUpdate) {
-			this.put();
-		} else if (this.client.environment === "production" && commandsNeedsUpdate) {
-			console.log("COMMANDS ARE OUT OF DATE, UPDATE THEM IF POSSIBLE");
-		}
-		// register the commands in configured guilds
+		// todo: register commands to a db and automatically update them if needed
 	}
 
 	fetch(id?: string, options?: BaseFetchOptions) {
