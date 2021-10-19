@@ -22,7 +22,7 @@ export class PermissionManager extends ClientManager {
 
 		const roles = await guild.roles.fetch();
 
-		const fullPermissions: GuildApplicationCommandPermissionData[] = cache.map(
+		const fullPermissions: GuildApplicationCommandPermissionData[] = commands.map(
 			({ name, id, options }) => {
 				const commandRoles = roles.filter(role =>
 					role.permissions.has(options.permissionFlags)
