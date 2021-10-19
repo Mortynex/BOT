@@ -2,7 +2,9 @@ import { ButtonInteraction, MessageButton, MessageButtonOptions } from "discord.
 import { mix } from "ts-mixer";
 import { KittyComponent } from "./KittyComponent";
 
-export interface KittyButton extends KittyComponent<ButtonInteraction>, MessageButton {}
+export interface KittyButton
+	extends KittyComponent<ButtonInteraction, "BUTTON">,
+		MessageButton {}
 
 @mix(KittyComponent)
 export class KittyButton extends MessageButton {

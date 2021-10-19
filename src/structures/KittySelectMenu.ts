@@ -1,7 +1,4 @@
 import {
-	ButtonInteraction,
-	MessageButton,
-	MessageButtonOptions,
 	MessageSelectMenu,
 	MessageSelectMenuOptions,
 	SelectMenuInteraction,
@@ -10,7 +7,7 @@ import { mix } from "ts-mixer";
 import { KittyComponent } from "./KittyComponent";
 
 export interface KittySelectMenu
-	extends KittyComponent<SelectMenuInteraction>,
+	extends KittyComponent<SelectMenuInteraction, "SELECT_MENU">,
 		MessageSelectMenu {}
 
 @mix(KittyComponent)

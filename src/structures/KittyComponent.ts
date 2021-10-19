@@ -4,11 +4,13 @@ import {
 	ButtonInteraction,
 	DMChannel,
 	Interaction,
+	InteractionCollectorOptions,
 	Message,
 	MessageButton,
 	MessageButtonOptions,
 	MessageComponentCollectorOptions,
 	MessageComponentInteraction,
+	MessageComponentType,
 	NewsChannel,
 	TextChannel,
 	ThreadChannel,
@@ -22,31 +24,45 @@ type channelsAllowed =
 	| NewsChannel
 	| BaseGuildTextChannel;
 
-export class KittyComponent<InteractionType extends MessageComponentInteraction> {
+type AwaitMessageCollectorOptionsParams<T extends MessageComponentInteraction> =
+	| { componentType?: T } & Pick<
+			InteractionCollectorOptions<T>,
+			keyof AwaitMessageComponentOptions<any>
+	  >;
+
+type MessageCollectorOptionsParams<T extends MessageComponentInteraction> =
+	| {
+			componentType?: T;
+	  } & MessageComponentCollectorOptions<T>;
+
+export class KittyComponent<
+	InteractionType extends MessageComponentInteraction,
+	ComponentType extends Exclude<MessageComponentType, "ACTION_ROW">
+> {
 	public customId: string | null;
 
 	createCollector(
 		channel: channelsAllowed,
-		options: MessageComponentCollectorOptions<InteractionType> = {}
+		options: MessageCollectorOptionsParams<InteractionType> = {}
 	) {
-		return channel.createMessageComponentCollector<InteractionType>(
-			this._addFilterToOptions(options)
+		return channel.createMessageComponentCollector<ComponentType>(
+			this._addFilterToOptions(options) as any
 		);
 	}
 
 	awaitComponent(
 		channel: channelsAllowed,
-		options: AwaitMessageComponentOptions<InteractionType>
+		options: AwaitMessageCollectorOptionsParams<InteractionType>
 	) {
-		return channel.awaitMessageComponent<InteractionType>(
-			this._addFilterToOptions(options)
+		return channel.awaitMessageComponent<ComponentType>(
+			this._addFilterToOptions(options) as any // :(
 		);
 	}
 
 	private _addFilterToOptions(
 		options:
-			| AwaitMessageComponentOptions<InteractionType>
-			| MessageComponentCollectorOptions<InteractionType>
+			| AwaitMessageCollectorOptionsParams<InteractionType>
+			| MessageCollectorOptionsParams<InteractionType>
 	) {
 		if (!this.customId) {
 			return options;
