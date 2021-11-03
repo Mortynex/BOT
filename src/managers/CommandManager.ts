@@ -34,21 +34,10 @@ export class CommandManager {
 
 		this._permissions = new PermissionManager(this.client);
 
-		const { DEV_TESTING_GUILD_ID } = process.env;
+		const { GUILD_ID } = process.env;
 
 		//get the client/testing guild application command manager
-		if (client.environment === "production" && client.application !== null) {
-			this._applicationManager = client.application.commands;
-		} else if (
-			client.environment === "development" &&
-			DEV_TESTING_GUILD_ID !== undefined
-		) {
-			(async () => {
-				this._applicationManager = (
-					await client.guilds.fetch(DEV_TESTING_GUILD_ID)
-				).commands;
-			})();
-		}
+		this._applicationManager = (await client.guilds.fetch(GUILD_ID)).commands;
 	}
 
 	get categories() {
