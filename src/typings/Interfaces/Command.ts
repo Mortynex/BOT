@@ -1,5 +1,5 @@
 import { PermissionFlags } from "discord.js";
-import { SlashCommandInteraction } from ".";
+import { CommandInteraction, Inhibitor } from ".";
 import { CommandPermissionFlag } from "..";
 import Bot from "../../kittyclient";
 import { CommandBuilder } from "../typings";
@@ -11,7 +11,7 @@ export interface Command {
 }
 
 export interface CommandExecute {
-	(client: Bot, interaction: SlashCommandInteraction): any;
+	(client: Bot, interaction: CommandInteraction): any;
 }
 
 export interface CommandInteractionFunction {
@@ -21,5 +21,5 @@ export interface CommandInteractionFunction {
 export interface CommandOptions {
 	ephemeral?: boolean;
 	permissionFlags?: CommandPermissionFlag[];
-	ownerOnly?: boolean;
+	inhibitors?: Inhibitor[];
 }
