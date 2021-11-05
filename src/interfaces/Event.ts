@@ -1,4 +1,4 @@
-import { KittyClient } from "client";
+import { KittyClient } from "@client";
 import { ClientEvents } from "discord.js";
 
 export type EventName = keyof ClientEvents;

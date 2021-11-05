@@ -1,10 +1,9 @@
+import { KittyClient } from "@client";
 import {
 	SlashCommandBuilder,
 	SlashCommandOptionsOnlyBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
-import { KittyClient } from "client";
-import { PermissionFlags } from "discord.js";
 import { CommandInteraction, Inhibitor } from ".";
 
 export interface Command {
