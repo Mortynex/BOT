@@ -14,7 +14,6 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"paths": {
-			"@client": ["client"],
 			"@interfaces": ["interfaces/*"],
 			"@managers": ["managers/*"],
 			"@structures": ["structures/*"]
