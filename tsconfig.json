@@ -3,7 +3,7 @@
 		"target": "ESNext",
 		"module": "CommonJS",
 		"lib": ["ESNext"],
-		"baseUrl": "./src",
+		"baseUrl": "src",
 		"strict": true,
 		"skipDefaultLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
@@ -12,7 +12,13 @@
 		"resolveJsonModule": true,
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"paths": {
+			"@client": ["client"],
+			"@interfaces": ["interfaces/*"],
+			"@managers": ["managers/*"],
+			"@structures": ["structures/*"]
+		}
 	},
 	"include": ["./src/**/*"]
 }
