@@ -1,4 +1,4 @@
-import { KittyClient } from "@client";
+import { KittyClient } from "client";
 import {
 	SlashCommandBuilder,
 	SlashCommandOptionsOnlyBuilder,
