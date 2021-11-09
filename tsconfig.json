@@ -16,7 +16,8 @@
 		"paths": {
 			"@interfaces": ["interfaces/*"],
 			"@managers": ["managers/*"],
-			"@structures": ["structures/*"]
+			"@structures": ["structures/*"],
+			"@util": ["util/*"]
 		}
 	},
 	"include": ["./src/**/*"]
