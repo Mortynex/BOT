@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "@discordjs/builders": "^0.8.2",
+    "chalk": "^4.1.2",
     "discord.js": "13.3.0",
     "glob": "^7.2.0",
+    "light-date": "^1.2.0",
     "schummar-translate-sync": "1.8.2"
   },
   "devDependencies": {
