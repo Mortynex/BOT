@@ -1,5 +1,5 @@
 import { createTranslator } from "schummar-translate-sync";
-import { en } from "../../locales/en";
+import { en } from "../../../locales/en";
 
 const { getTranslator } = createTranslator({
 	sourceLocale: "en",
