@@ -12,13 +12,7 @@
 		"resolveJsonModule": true,
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"paths": {
-			"@interfaces": ["interfaces/*"],
-			"@managers": ["managers/*"],
-			"@structures": ["structures/*"],
-			"@util": ["util/*"]
-		}
+		"allowSyntheticDefaultImports": true
 	},
 	"include": ["./src/**/*"]
 }
