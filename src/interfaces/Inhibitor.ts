@@ -1,5 +1,6 @@
+import { KittyClient } from "client";
 import { CommandInteraction } from ".";
 
 export interface Inhibitor {
-	(interaction: CommandInteraction): boolean;
+	(client: KittyClient, interaction: CommandInteraction): boolean | Promise<boolean>;
 }
