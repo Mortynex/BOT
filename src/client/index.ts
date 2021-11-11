@@ -1,10 +1,11 @@
 import { Client, ClientOptions } from "discord.js";
 import { EventManager } from "managers";
-import { info } from "util/logger";
-import { t } from "util/translator";
+import { LocalStorage } from "node-localstorage";
+import { LOCALSTORAGE_PATH } from "paths";
 
 export class KittyClient extends Client {
 	public events: EventManager;
+	public localStorage: LocalStorage = new LocalStorage(LOCALSTORAGE_PATH);
 
 	constructor(options: ClientOptions) {
 		super(options);
