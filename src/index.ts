@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { t } from "./util/translator";
 import { info, warn, error, debug } from "./util/logger";
 import { KittyClient } from "client";

@@ -13,7 +13,8 @@
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"strictPropertyInitialization": false
+		"strictPropertyInitialization": false,
+		"emitDecoratorMetadata": true
 	},
 	"include": ["./src/**/*"]
 }
