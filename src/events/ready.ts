@@ -10,4 +10,9 @@ export const run: EventHandler<typeof name> = client => {
 			clientTag: client.user!.tag,
 		})
 	);
+
+	client.user?.setPresence({
+		status: "online",
+		activities: [{ type: "WATCHING", name: "you" }],
+	});
 };
