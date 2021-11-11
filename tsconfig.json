@@ -12,7 +12,8 @@
 		"resolveJsonModule": true,
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"strictPropertyInitialization": false
 	},
 	"include": ["./src/**/*"]
 }
