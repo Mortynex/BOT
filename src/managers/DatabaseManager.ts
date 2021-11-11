@@ -9,7 +9,7 @@ export class DatabaseManager extends BaseClientManager {
 	async init() {
 		await createConnection({
 			type: "better-sqlite3",
-			database: "./db.sqlite",
+			database: "./data/db.sqlite",
 			entities: [ECommand],
 		});
 
