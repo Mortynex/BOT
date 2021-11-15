@@ -8,6 +8,7 @@ import {
 } from "interfaces";
 import { isPromise } from "util/types";
 import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types";
+import { RawCommand } from "typings";
 
 type KittyCommandOptions = {
 	builder: CommandBuilder;
@@ -35,7 +36,7 @@ export class KittyCommand {
 		return this._options;
 	}
 
-	getApplicationCommandData(): RESTPostAPIApplicationCommandsJSONBody {
+	getRESTApplicationCommandBody(): RawCommand {
 		return this._data;
 	}
 
