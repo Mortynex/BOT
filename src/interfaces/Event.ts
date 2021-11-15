@@ -9,5 +9,5 @@ export interface EventHandler<Name extends EventName> {
 
 export interface Event<Name extends EventName> {
 	name: Name;
-	run: (client: KittyClient, ...args: ClientEvents[Name]) => any;
+	execute: (client: KittyClient, ...args: ClientEvents[Name]) => any;
 }

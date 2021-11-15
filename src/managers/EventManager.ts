@@ -20,9 +20,9 @@ export class EventManager extends BaseClientManager {
 
 		for (const eventPath of events) {
 			const event = (await import(eventPath)) as Event<any>;
-			const { name, run } = event;
+			const { name, execute } = event;
 
-			if (!name || !run) {
+			if (!name || !execute) {
 				warn(
 					t("managers.event.eventMissingProperties", {
 						eventName: parse(eventPath).base,
@@ -34,7 +34,7 @@ export class EventManager extends BaseClientManager {
 
 			const kittyEvent = new KittyEvent({
 				name,
-				handler: run.bind(null, this.client),
+				handler: execute.bind(null, this.client),
 			});
 
 			this.add(kittyEvent);
