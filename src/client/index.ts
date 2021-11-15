@@ -3,7 +3,7 @@ import { DatabaseManager, EventManager } from "managers";
 import { LocalStorage } from "node-localstorage";
 import { LOCALSTORAGE_PATH } from "paths";
 
-export class KittyClient extends Client {
+export class KittyClient extends Client<true> {
 	public events: EventManager;
 	public localStorage: LocalStorage = new LocalStorage(LOCALSTORAGE_PATH);
 	public database: DatabaseManager;
