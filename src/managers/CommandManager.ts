@@ -13,6 +13,7 @@ import { Application, ApplicationCommand, Collection } from "discord.js";
 import { debug } from "util";
 import { error, info } from "util/logger";
 import { t } from "util/translator";
+import { Console } from "console";
 export interface CommandManager
 	extends BaseStoreManager<string, KittyCommand<true>>,
 		BaseClientManager {}
@@ -87,6 +88,15 @@ export class CommandManager extends BaseClientManager {
 					this.store.set(kittyCommand.name, kittyCommand);
 				}
 
+				const eCommands = await eCommandsManager.getAllComands();
+
+				for (const [name, kittyCommand] of this.store) {
+					const entity = eCommands.find(e => e.name === name);
+					if (entity?.hash !== kittyCommand.getHash()) {
+						eCommandsManager.saveCommand(kittyCommand);
+					}
+				}
+
 				break;
 			} else if (needsUpdating && !guildId) {
 				error(t("general.notImplemented"));
@@ -131,7 +141,7 @@ export class CommandManager extends BaseClientManager {
 
 		const clientUser = this.client.user;
 
-		if (process.env.DISCORD_API_TOKEN === undefined) {
+		if (process.env.DISCORD_BOT_TOKEN === undefined) {
 			return unsuccesfull;
 		}
 
@@ -139,7 +149,7 @@ export class CommandManager extends BaseClientManager {
 			return unsuccesfull;
 		}
 
-		const rest = new REST({});
+		const rest = new REST({ version: "9" }).setToken(process.env.DISCORD_BOT_TOKEN);
 
 		try {
 			const route = guildId
@@ -147,7 +157,7 @@ export class CommandManager extends BaseClientManager {
 				: Routes.applicationCommands(clientId);
 
 			const res = await rest.put(route, { body: data });
-			debug((res as any[])[0]);
+
 			if (res) {
 				return {
 					commands: res as ApplicationCommand[],
