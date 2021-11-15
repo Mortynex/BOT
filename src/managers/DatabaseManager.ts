@@ -11,6 +11,7 @@ export class DatabaseManager extends BaseClientManager {
 			type: "better-sqlite3",
 			database: "./data/db.sqlite",
 			entities: [ECommand],
+			synchronize: process.env.NODE_ENV === "development",
 		});
 
 		this.commands = new ECommandsManager(ECommand);
