@@ -1,12 +1,14 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, Unique } from "typeorm";
 
 @Entity()
 // "E" for Entity
 export class ECommand {
-	@PrimaryColumn()
+	@PrimaryColumn({
+		unique: true,
+	})
 	name: string;
 
-	@Column()
+	@Column({ unique: true })
 	id: string;
 
 	@Column()
