@@ -9,6 +9,8 @@ import {
 import { isPromise } from "util/types";
 import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types";
 import { RawCommand } from "typings";
+import { hashString } from "util/crypto";
+import { CommandOptionDefaults } from "defaults";
 
 type KittyCommandOptions = {
 	builder: CommandBuilder;
@@ -21,7 +23,7 @@ export class KittyCommand<hasId extends Boolean = false> {
 	private _id: hasId extends true ? string : null | string;
 	private _name: string;
 	private _options: Required<CommandOptions>;
-	private _data: RawCommand;
+	private _builder: CommandBuilder;
 	private _execute: CommandExecute;
 
 	get id() {
@@ -36,20 +38,32 @@ export class KittyCommand<hasId extends Boolean = false> {
 		return this._options;
 	}
 
-	getRESTApplicationCommandBody(): RawCommand {
-		return this._data;
+	get handler() {
+		return this._execute;
 	}
 
-	constructor({ builder, id, options, execute }: KittyCommandOptions) {
-		this._data = builder.toJSON();
-		const { name } = this._data;
-		this._name = name;
-		// TODO: make default command options changable
-		this._options = { ...{ ephemeral: false, inhibitors: [] }, ...options };
+	get builder() {
+		return this._builder;
+	}
+
+	getHash() {
+		return hashString(JSON.stringify(this.getRESTApplicationCommandBody()));
+	}
+
+	getRESTApplicationCommandBody(): RawCommand {
+		return this._builder.toJSON();
+	}
+
+	constructor(data: KittyCommandOptions) {
+		const { builder, options, execute } = data;
+		this._builder = builder;
+		this._name = builder.toJSON().name;
+		// TODO: make default command options changable via commands
+		this._options = { ...CommandOptionDefaults, ...options };
 		this._execute = execute;
 
-		if (id) {
-			this._id = id;
+		if (data.id) {
+			this._id = data.id;
 		}
 	}
 
