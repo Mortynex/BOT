@@ -18,6 +18,8 @@ export const en = {
 		},
 		command: {
 			failedUpdating: `Failed updating commands`,
+			updatingCommands: `Updating commands...`,
+			clearingCommands: `Clearing commands...`,
 		},
 	},
 	commands: {
