@@ -6,7 +6,7 @@ export const name: EventName = "ready";
 
 export const execute: EventHandler<typeof name> = client => {
 	info(
-		t("client.isReady", {
+		t("client.ready", {
 			clientTag: client.user!.tag,
 		})
 	);

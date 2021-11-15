@@ -4,7 +4,7 @@ export const en = {
 		starting: "Initializating bot...",
 	},
 	client: {
-		isReady: "Client is ready and logged in as {clientTag}",
+		ready: "Client is ready and logged in as {clientTag}",
 	},
 	managers: {
 		event: {
@@ -12,6 +12,12 @@ export const en = {
 				"Event {eventName} has missing properties and couldn't be loaded",
 			loadedAll: `Succesfully loaded {eventsCount} events`,
 			addedEvent: `Succesfully Loaded "{eventName}" event`,
+		},
+	},
+	commands: {
+		ping: {
+			description: "Description missing",
+			succes: "Pong!",
 		},
 	},
 	// DISCORD
