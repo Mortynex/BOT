@@ -13,6 +13,9 @@ export const en = {
 			loadedAll: `Succesfully loaded {eventsCount} events`,
 			addedEvent: `Succesfully Loaded "{eventName}" event`,
 		},
+		command: {
+			failedUpdating: `Failed updating commands`,
+		},
 	},
 	commands: {
 		ping: {
