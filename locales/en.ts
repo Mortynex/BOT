@@ -1,5 +1,8 @@
 export const en = {
 	// CONSOLE
+	general: {
+		notImplemented: `THIS FEAUTRE IS NOT YET IMPLEMENTED`,
+	},
 	main: {
 		starting: "Initializating bot...",
 	},
