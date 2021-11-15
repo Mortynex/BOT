@@ -17,11 +17,11 @@ type KittyCommandOptions = {
 	options: CommandOptions;
 };
 
-export class KittyCommand {
-	private _id: string | null = null;
+export class KittyCommand<hasId extends Boolean = false> {
+	private _id: hasId extends true ? string : null | string;
 	private _name: string;
 	private _options: Required<CommandOptions>;
-	private _data: RESTPostAPIApplicationCommandsJSONBody;
+	private _data: RawCommand;
 	private _execute: CommandExecute;
 
 	get id() {
