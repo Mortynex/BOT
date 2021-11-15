@@ -7,7 +7,7 @@ import {
 import { CommandInteraction, Inhibitor } from ".";
 
 export interface Command {
-	interaction: CommandBuilder;
+	data: CommandBuilder;
 	execute: CommandExecute;
 	options?: CommandOptions;
 }
