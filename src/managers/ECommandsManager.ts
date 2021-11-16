@@ -22,6 +22,10 @@ export class ECommandsManager extends BaseRepositoryManager<ECommand> {
 		return this.repository.findOne({ id });
 	}
 
+	async getAllComands() {
+		return this.repository.find();
+	}
+
 	createEntity(command: KittyCommand<true>): ECommand {
 		return this.repository.create({
 			hash: command.getHash(),
