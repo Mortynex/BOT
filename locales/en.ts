@@ -20,7 +20,7 @@ export const en = {
 			failedUpdating: `Failed updating commands`,
 			updatingCommands: `Updating commands...`,
 			clearingCommands: `Clearing commands...`,
-			automaticCommandUpdating: `Detected commands change, updating commands...`,
+			automaticCommandUpdate: `Detected commands change, updating commands...`,
 		},
 	},
 	commands: {

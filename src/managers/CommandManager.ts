@@ -66,7 +66,8 @@ export class CommandManager extends BaseClientManager {
 			const guildId = process.env.GUILD_ID;
 
 			if (needsUpdating && guildId) {
-				info(t("managers.command.automaticCommandUpdating"));
+				info(t("managers.command.automaticCommandUpdate"));
+
 				const { commands, succesfull } = await this._put(
 					this.client.user.id,
 					IDlessCommands.map(cmd => cmd.getRESTApplicationCommandBody()),
