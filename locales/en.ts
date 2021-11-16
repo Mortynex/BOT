@@ -2,6 +2,7 @@ export const en = {
 	// CONSOLE
 	general: {
 		notImplemented: `THIS FEAUTRE IS NOT YET IMPLEMENTED`,
+		fatal: `FATAL ERROR OCCURED: {message}`,
 	},
 	main: {
 		starting: "Initializating bot...",

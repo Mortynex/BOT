@@ -9,11 +9,10 @@ import { CommandOptionDefaults } from "defaults";
 import { RawCommand } from "typings";
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import { Application, ApplicationCommand, Collection } from "discord.js";
-import { debug } from "util";
+import { ApplicationCommand, Collection } from "discord.js";
 import { error, info } from "util/logger";
 import { t } from "util/translator";
-import { Console } from "console";
+import { hashObject } from "util/crypto";
 export interface CommandManager
 	extends BaseStoreManager<string, KittyCommand<true>>,
 		BaseClientManager {}
@@ -56,52 +55,80 @@ export class CommandManager extends BaseClientManager {
 			}
 		}
 
+		// check if some commands changed
+		const commandsDataHash = hashObject(transformCommandsToREST(IDlessCommands));
+		const lastDataHash = this.client.localStorage.getItem("COMMANDS_DATA_HASH") ?? "";
+
+		if (commandsDataHash === lastDataHash) {
+			// no need for command update so exit
+			return;
+		}
+
+		const guildId = process.env.GUILD_ID;
+
+		if (guildId) {
+			await this.update(IDlessCommands, guildId);
+		} else {
+			error(t("general.notImplemented"));
+		}
+	}
+
+	async update(input: Collection<string, KittyCommand>, guildId?: string) {
+		info(t("managers.command.automaticCommandUpdate"));
+
 		const eCommandsManager = this.client.database.commands;
 
-		for (const [name, idlessCommand] of IDlessCommands) {
-			const ecommand = await eCommandsManager.getCommandByName(name);
+		const restCommandData = transformCommandsToREST(input);
 
-			const needsUpdating = !ecommand || ecommand.hash !== idlessCommand.getHash();
+		const { commands: appCommands, succesfull } = await this._put(
+			this.client.user.id,
+			restCommandData,
+			guildId
+		);
 
-			const guildId = process.env.GUILD_ID;
+		if (!succesfull) {
+			return error(t("managers.command.failedUpdating"));
+		}
 
-			if (needsUpdating && guildId) {
-				info(t("managers.command.automaticCommandUpdate"));
+		const newCommandsDataHash = hashObject(restCommandData);
 
-				const { commands, succesfull } = await this._put(
-					this.client.user.id,
-					IDlessCommands.map(cmd => cmd.getRESTApplicationCommandBody()),
-					guildId
+		this.client.localStorage.setItem("COMMANDS_DATA_HASH", newCommandsDataHash);
+
+		for (const [kcName, kittyCommand] of input) {
+			const id = appCommands.find(({ name: acName }) => acName === kcName)?.id;
+
+			if (!id) {
+				return error(
+					t("general.fatal", {
+						message:
+							"Couldnt map an application command to its corresponding kittycommand",
+					})
 				);
-
-				if (!succesfull) {
-					return error(t("managers.command.failedUpdating"));
-				}
-
-				for (const acommand of commands) {
-					const kittyCommand = new KittyCommand<true>({
-						builder: idlessCommand.builder,
-						execute: idlessCommand.execute,
-						options: idlessCommand.options,
-						id: acommand.id,
-					});
-
-					this.store.set(kittyCommand.name, kittyCommand);
-				}
-
-				const eCommands = await eCommandsManager.getAllComands();
-
-				for (const [name, kittyCommand] of this.store) {
-					const entity = eCommands.find(e => e.name === name);
-					if (entity?.hash !== kittyCommand.getHash()) {
-						eCommandsManager.saveCommand(kittyCommand);
-					}
-				}
-
-				break;
-			} else if (needsUpdating && !guildId) {
-				error(t("general.notImplemented"));
 			}
+
+			const newKittyCommand = new KittyCommand<true>({
+				builder: kittyCommand.builder,
+				execute: kittyCommand.execute,
+				options: kittyCommand.options,
+				id: id,
+			});
+
+			this.store.set(newKittyCommand.name, newKittyCommand);
+		}
+
+		const eCommands = await eCommandsManager.getAllComands();
+
+		const commandsToUpdate: KittyCommand<true>[] = [];
+
+		for (const [name, kittyCommand] of this.store) {
+			const entity = eCommands.find(e => e.name === name);
+			if (entity?.hash !== kittyCommand.getHash()) {
+				commandsToUpdate.push(kittyCommand);
+			}
+		}
+
+		if (commandsToUpdate.length > 0) {
+			eCommandsManager.saveCommands(commandsToUpdate);
 		}
 	}
 
@@ -171,4 +198,8 @@ export class CommandManager extends BaseClientManager {
 			return unsuccesfull;
 		}
 	}
+}
+
+function transformCommandsToREST(commands: Collection<string, KittyCommand>) {
+	return commands.map(command => command.getRESTApplicationCommandBody());
 }
