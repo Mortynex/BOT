@@ -59,8 +59,30 @@ export class CommandManager extends BaseClientManager {
 		const commandsDataHash = hashObject(transformCommandsToREST(IDlessCommands));
 		const lastDataHash = this.client.localStorage.getItem("COMMANDS_DATA_HASH") ?? "";
 
+		const eCommandsManager = this.client.database.commands;
+
 		if (commandsDataHash === lastDataHash) {
-			// no need for command update so exit
+			const allECommands = await eCommandsManager.getAllComands();
+
+			for (const { name, id } of allECommands) {
+				console.log({
+					allECommands,
+					IDlessCommands,
+				});
+				const kittyCommand = IDlessCommands.find(kcmd => kcmd.name === name);
+
+				if (!kittyCommand) {
+					return error(
+						t("general.fatal", {
+							message:
+								"E:418 Couldnt find kitty command instance for this command db entity",
+						})
+					);
+				}
+
+				this.store.set(name, kittyCommand.createInstanceWithId(id));
+			}
+
 			return;
 		}
 
