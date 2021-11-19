@@ -30,5 +30,15 @@ export const en = {
 			succes: "Pong!",
 		},
 	},
+	events: {
+		interactionCreate: {
+			commandInteraction: {
+				noGuild: `Guild not found`,
+				noMember: `No member found`,
+				noCommand: `Couldn't find this command`,
+				errorWhileExecuting: `Command {name} had an error while executing`,
+			},
+		},
+	},
 	// DISCORD
 } as const;

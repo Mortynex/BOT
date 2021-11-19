@@ -3,7 +3,7 @@ import { BaseClientManager } from "./BaseClientManager";
 import globRead from "tiny-glob";
 import { COMMANDS_CATEGORIES_DIR, COMMANDS_DIR } from "../paths";
 import { mix } from "ts-mixer";
-import { Command } from "interfaces";
+import { Command, CommandBuilder, CommandExecute } from "interfaces";
 import { KittyCommand } from "structures";
 import { CommandOptionDefaults } from "defaults";
 import { RawCommand } from "typings";
@@ -13,6 +13,8 @@ import { ApplicationCommand, Collection } from "discord.js";
 import { error, info } from "util/logger";
 import { t } from "util/translator";
 import { hashObject } from "util/crypto";
+import { LOCALSTORAGE_APPCOMMAND_HASH } from "../constants";
+import { CommandOptions } from "typeorm";
 export interface CommandManager
 	extends BaseStoreManager<string, KittyCommand<true>>,
 		BaseClientManager {}
@@ -26,7 +28,7 @@ export class CommandManager extends BaseClientManager {
 	}
 
 	async load() {
-		const IDlessCommands: Collection<string, KittyCommand<false>> = new Collection();
+		const commandData = new Map<string, Command>();
 
 		// get all commands
 		const categories = await globRead(COMMANDS_CATEGORIES_DIR);
@@ -41,117 +43,36 @@ export class CommandManager extends BaseClientManager {
 
 			for (const commandPath of commandPaths) {
 				let command: Command = (await import(commandPath)) as Command;
-				let { data, options, execute } = command;
-
-				options = { ...CommandOptionDefaults, ...(options ?? {}) };
-
-				const kittyCommand = new KittyCommand<false>({
-					builder: data,
-					execute,
+				let {
+					data: { name },
 					options,
+				} = command;
+
+				commandData.set(name, {
+					...command,
+					options: { ...CommandOptionDefaults, ...(options ?? {}) },
 				});
-
-				IDlessCommands.set(data.name, kittyCommand);
 			}
 		}
 
-		// check if some commands changed
-		const commandsDataHash = hashObject(transformCommandsToREST(IDlessCommands));
-		const lastDataHash = this.client.localStorage.getItem("COMMANDS_DATA_HASH") ?? "";
+		let applicationCommands = await this.fetch(process.env.GUILD_ID);
+		const appCommandsHash = hashObject(applicationCommands);
 
-		const eCommandsManager = this.client.database.commands;
+		const lastHash = this.client.localStorage.getItem(LOCALSTORAGE_APPCOMMAND_HASH);
 
-		if (commandsDataHash === lastDataHash) {
-			const allECommands = await eCommandsManager.getAllComands();
-
-			for (const { name, id } of allECommands) {
-				console.log({
-					allECommands,
-					IDlessCommands,
-				});
-				const kittyCommand = IDlessCommands.find(kcmd => kcmd.name === name);
-
-				if (!kittyCommand) {
-					return error(
-						t("general.fatal", {
-							message:
-								"E:418 Couldnt find kitty command instance for this command db entity",
-						})
-					);
-				}
-
-				this.store.set(name, kittyCommand.createInstanceWithId(id));
-			}
-
-			return;
+		if (appCommandsHash === lastHash) {
+			applicationCommands = ( // not really readable
+				await this._put(
+					this.client.user.id,
+					[...commandData].map(([_, { data }]) => data.toJSON()), // ugly
+					process.env.GUILD_ID
+				)
+			).commands.reduce((collection, command) => {
+				return collection.set(command.name, command);
+			}, new Collection<string, ApplicationCommand>());
 		}
 
-		const guildId = process.env.GUILD_ID;
-
-		if (guildId) {
-			await this.update(IDlessCommands, guildId);
-		} else {
-			error(t("general.notImplemented"));
-		}
-	}
-
-	async update(input: Collection<string, KittyCommand>, guildId?: string) {
-		info(t("managers.command.automaticCommandUpdate"));
-
-		const eCommandsManager = this.client.database.commands;
-
-		const restCommandData = transformCommandsToREST(input);
-
-		const { commands: appCommands, succesfull } = await this._put(
-			this.client.user.id,
-			restCommandData,
-			guildId
-		);
-
-		if (!succesfull) {
-			return error(t("managers.command.failedUpdating"));
-		}
-
-		const newCommandsDataHash = hashObject(restCommandData);
-
-		this.client.localStorage.setItem("COMMANDS_DATA_HASH", newCommandsDataHash);
-
-		for (const [kcName, kittyCommand] of input) {
-			const id = appCommands.find(({ name: acName }) => acName === kcName)?.id;
-
-			if (!id) {
-				return error(
-					t("general.fatal", {
-						message:
-							"Couldnt map an application command to its corresponding kittycommand",
-					})
-				);
-			}
-
-			const newKittyCommand = new KittyCommand<true>({
-				builder: kittyCommand.builder,
-				execute: kittyCommand.execute,
-				options: kittyCommand.options,
-				id: id,
-			});
-
-			this.store.set(newKittyCommand.name, newKittyCommand);
-		}
-
-		const eCommands = await eCommandsManager.getAllComands();
-
-		const commandsToUpdate: KittyCommand<true>[] = [];
-
-		for (const [name, kittyCommand] of this.store) {
-			const entity = eCommands.find(e => e.name === name);
-			if (entity?.hash !== kittyCommand.getHash()) {
-				commandsToUpdate.push(kittyCommand);
-			}
-		}
-
-		if (commandsToUpdate.length > 0) {
-			eCommandsManager.saveCommands(commandsToUpdate);
-		}
+		// TODO: create KittyCommand instances with ids from applicationCommands var
 	}
 
 	put(guildId?: string) {
@@ -168,7 +89,17 @@ export class CommandManager extends BaseClientManager {
 		return this._put(this.client.user.id, [], guildId);
 	}
 
-	fetch() {}
+	async fetch(guildId: string) {
+		const aCommandManager = guildId
+			? (await this.client.guilds.fetch(guildId)).commands
+			: this.client.application.commands;
+
+		if (!aCommandManager) {
+			throw error(`invalid guild id`);
+		}
+
+		return aCommandManager.fetch({});
+	}
 
 	private _getAllRESTApplicationCommandBody(): RawCommand[] {
 		return this.store.map(kittyCommand => {
