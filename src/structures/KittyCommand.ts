@@ -92,4 +92,13 @@ export class KittyCommand<hasId extends Boolean = false> {
 
 		return true;
 	}
+
+	createInstanceWithId(id: string): KittyCommand<true> {
+		return new KittyCommand<true>({
+			execute: this._execute,
+			builder: this._builder,
+			options: this._options,
+			id,
+		});
+	}
 }
