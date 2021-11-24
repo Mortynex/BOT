@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev -r tsconfig-paths/register ./src/index.ts"
+    "dev": "ts-node-dev -r tsconfig-paths/register --files ./src/index.ts"
   },
   "dependencies": {
     "@discordjs/builders": "^0.8.2",
