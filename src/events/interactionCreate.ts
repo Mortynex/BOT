@@ -1,26 +1,35 @@
-import { CommandInteraction, EventHandler, EventName } from "interfaces";
+import { EventHandler, EventName, CommandInteraction } from "interfaces";
+import { CommandInteraction as DiscordCommandInteraction } from "discord.js";
 import { error, info, debug } from "util/logger";
 import { t } from "util/translator";
+import { KittyClient } from "client";
 
 export const name: EventName = "interactionCreate";
 
 export const execute: EventHandler<typeof name> = async (client, interaction) => {
-	if (!interaction.isCommand()) return;
+	if (interaction.isCommand()) {
+		const errorMessage = await handleCommandInteraction(client, interaction);
 
+		if (typeof errorMessage === "string") {
+			interaction.followUp({ ephemeral: true, content: errorMessage });
+		}
+	}
+};
+
+async function handleCommandInteraction(
+	client: KittyClient,
+	interaction: DiscordCommandInteraction
+) {
 	const command = client.commands.store.get(interaction.commandName);
 
-	console.log(client.commands.store);
-
 	if (!command) {
-		return interaction.reply(t("events.interactionCreate.commandInteraction.noCommand"));
+		return t("events.interactionCreate.commandInteraction.noCommand");
 	}
 
 	await interaction.deferReply({ ephemeral: command.options.ephemeral }).catch(() => {});
 
-	const guild = interaction.guild;
-
-	if (!guild) {
-		return interaction.followUp(t("events.interactionCreate.commandInteraction.noGuild"));
+	if (!interaction.guild) {
+		return t("events.interactionCreate.commandInteraction.noGuild");
 	}
 
 	const member =
@@ -28,24 +37,17 @@ export const execute: EventHandler<typeof name> = async (client, interaction) =>
 		(await interaction.guild?.members.fetch(interaction.user.id));
 
 	if (!member) {
-		return interaction.followUp(
-			t("events.interactionCreate.commandInteraction.noMember")
-		);
+		return t("events.interactionCreate.commandInteraction.noMember");
 	}
 
-	interaction.member = member;
-	const slashCommandInteraction = Object.assign(interaction, {
+	const fullCommandInteraction = Object.assign(interaction, {
 		member,
 	}) as CommandInteraction;
 
-	Object.defineProperty(slashCommandInteraction, "guild", {
-		get: function () {
-			return guild;
-		},
-	});
-
 	try {
-		command.execute(client, slashCommandInteraction);
+		command.execute(client, fullCommandInteraction);
+
+		return null;
 	} catch (e) {
 		debug(e);
 
@@ -54,6 +56,6 @@ export const execute: EventHandler<typeof name> = async (client, interaction) =>
 		});
 
 		error(message);
-		interaction.followUp(message);
+		return message;
 	}
-};
+}
