@@ -1,4 +1,3 @@
-import { ApplicationCommandData } from "discord.js";
 import { KittyClient } from "client";
 import {
 	CommandExecute,
@@ -7,20 +6,19 @@ import {
 	CommandBuilder,
 } from "interfaces";
 import { isPromise } from "util/types";
-import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types";
 import { RawCommand } from "typings";
 import { hashString } from "util/crypto";
 import { CommandOptionDefaults } from "defaults";
 
 type KittyCommandOptions = {
 	builder: CommandBuilder;
-	id?: string;
+	id: string;
 	execute: CommandExecute;
 	options: CommandOptions;
 };
 
-export class KittyCommand<hasId extends Boolean = false> {
-	private _id: hasId extends true ? string : null | string;
+export class KittyCommand {
+	private _id: string;
 	private _name: string;
 	private _options: Required<CommandOptions>;
 	private _builder: CommandBuilder;
@@ -46,10 +44,6 @@ export class KittyCommand<hasId extends Boolean = false> {
 		return this._builder;
 	}
 
-	getHash() {
-		return hashString(JSON.stringify(this.getRESTApplicationCommandBody()));
-	}
-
 	getRESTApplicationCommandBody(): RawCommand {
 		return this._builder.toJSON();
 	}
@@ -58,7 +52,7 @@ export class KittyCommand<hasId extends Boolean = false> {
 		const { builder, options, execute } = data;
 		this._builder = builder;
 		this._name = builder.toJSON().name;
-		// TODO: make default command options changable via commands
+		// TODO: make default command options configurable with db
 		this._options = { ...CommandOptionDefaults, ...options };
 		this._execute = execute;
 
@@ -91,14 +85,5 @@ export class KittyCommand<hasId extends Boolean = false> {
 		this._execute(client, interaction);
 
 		return true;
-	}
-
-	createInstanceWithId(id: string): KittyCommand<true> {
-		return new KittyCommand<true>({
-			execute: this._execute,
-			builder: this._builder,
-			options: this._options,
-			id,
-		});
 	}
 }
