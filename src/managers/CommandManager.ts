@@ -16,7 +16,7 @@ import { hashObject } from "util/crypto";
 import { LOCALSTORAGE_APPCOMMAND_HASH } from "../constants";
 import { CommandOptions } from "typeorm";
 export interface CommandManager
-	extends BaseStoreManager<string, KittyCommand<true>>,
+	extends BaseStoreManager<string, KittyCommand>,
 		BaseClientManager {}
 
 @mix(BaseStoreManager)
@@ -28,7 +28,7 @@ export class CommandManager extends BaseClientManager {
 	}
 
 	async load() {
-		const commandData = new Map<string, Command>();
+		const commandsData = new Map<string, Command>();
 
 		// get all commands
 		const categories = await globRead(COMMANDS_CATEGORIES_DIR);
@@ -42,43 +42,59 @@ export class CommandManager extends BaseClientManager {
 			}
 
 			for (const commandPath of commandPaths) {
-				let command: Command = (await import(commandPath)) as Command;
-				let {
+				const command: Command = (await import(commandPath)) as Command;
+				const {
 					data: { name },
-					options,
 				} = command;
 
-				commandData.set(name, {
-					...command,
-					options: { ...CommandOptionDefaults, ...(options ?? {}) },
-				});
+				commandsData.set(name, command);
 			}
 		}
+		const localStorage = this.client.localStorage;
+
+		const commandsDataInJSON = [...commandsData].map(([_, { data }]) => data.toJSON());
+		const commandsDataHash = hashObject(commandsDataInJSON);
 
 		let applicationCommands = await this.fetch(process.env.GUILD_ID);
-		const appCommandsHash = hashObject(applicationCommands);
 
-		const lastHash = this.client.localStorage.getItem(LOCALSTORAGE_APPCOMMAND_HASH);
+		const currentHash = commandsDataHash; // current commands hash
+		const previousHash = localStorage.getItem(LOCALSTORAGE_APPCOMMAND_HASH); // previus commnads hash
 
-		if (appCommandsHash === lastHash) {
-			applicationCommands = ( // not really readable
-				await this._put(
-					this.client.user.id,
-					[...commandData].map(([_, { data }]) => data.toJSON()), // ugly
-					process.env.GUILD_ID
-				)
-			).commands.reduce((collection, command) => {
-				return collection.set(command.name, command);
-			}, new Collection<string, ApplicationCommand>());
+		// updating outdated commands through discord api
+		if (previousHash !== currentHash) {
+			info("updating commands...");
+			applicationCommands = await this._put(commandsDataInJSON, process.env.GUILD_ID);
+
+			localStorage.setItem(LOCALSTORAGE_APPCOMMAND_HASH, commandsDataHash);
 		}
 
-		// TODO: create KittyCommand instances with ids from applicationCommands var
+		// loading commands data into kitty command instances
+		for (const { name, id } of applicationCommands.values()) {
+			const command = commandsData.get(name);
+
+			if (!command) {
+				throw new Error("TODO: properly handle this error");
+			}
+
+			info(`loaded command "${name}"`);
+
+			const { data, execute, options } = command;
+
+			const kittyCommand = new KittyCommand({
+				id,
+				builder: data,
+				execute,
+				options: options ?? {},
+			});
+
+			this.store.set(name, kittyCommand);
+		}
 	}
 
 	put(guildId?: string) {
 		info(t("managers.command.updatingCommands"));
 		return this._put(
-			this.client.user.id,
+			//this.client.user.id,
 			this._getAllRESTApplicationCommandBody(),
 			guildId
 		);
@@ -86,19 +102,23 @@ export class CommandManager extends BaseClientManager {
 
 	clear(guildId?: string) {
 		info(t("managers.command.clearingCommands"));
-		return this._put(this.client.user.id, [], guildId);
+		return this._put(/*this.client.user.id,*/ [], guildId);
 	}
 
 	async fetch(guildId: string) {
-		const aCommandManager = guildId
-			? (await this.client.guilds.fetch(guildId)).commands
-			: this.client.application.commands;
+		const applicationCommandManager = await this.getApplicationCommandManager();
 
-		if (!aCommandManager) {
+		if (!applicationCommandManager) {
 			throw error(`invalid guild id`);
 		}
 
-		return aCommandManager.fetch({});
+		return applicationCommandManager.fetch({});
+	}
+
+	async getApplicationCommandManager(guildId?: string) {
+		return guildId
+			? (await this.client.guilds.fetch(guildId)).commands
+			: this.client.application.commands;
 	}
 
 	private _getAllRESTApplicationCommandBody(): RawCommand[] {
@@ -107,6 +127,13 @@ export class CommandManager extends BaseClientManager {
 		});
 	}
 
+	private async _put(commandsData: RawCommand[], guildId?: string) {
+		const applicationCommandManager = await this.getApplicationCommandManager();
+
+		return applicationCommandManager.set(commandsData);
+	}
+
+	/*
 	private async _put(
 		clientId: string,
 		data: RawCommand[],
@@ -150,7 +177,7 @@ export class CommandManager extends BaseClientManager {
 		} catch (err) {
 			return unsuccesfull;
 		}
-	}
+	}*/
 }
 
 function transformCommandsToREST(commands: Collection<string, KittyCommand>) {
