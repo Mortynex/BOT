@@ -25,6 +25,11 @@ export const en = {
 		},
 	},
 	commands: {
+		inhibitors: {
+			cooldown: {
+				userOnCooldown: `You cannot use this command for another {time}!`
+			}
+		},
 		ping: {
 			description: "Description missing",
 			succes: "Pong!",
