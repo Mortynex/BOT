@@ -69,7 +69,12 @@ export class KittyCommand {
 		this._id = newId;
 	}
 
-	async execute(client: KittyClient, interaction: CommandInteraction): Promise<boolean> {
+	async execute(
+		client: KittyClient,
+		interaction: CommandInteraction
+	): Promise<{
+		error: string | null;
+	}> {
 		for (const inhibitor of this.options.inhibitors) {
 			let result = inhibitor(client, interaction);
 
@@ -77,13 +82,17 @@ export class KittyCommand {
 				result = await result;
 			}
 
-			if (result === false) {
-				return false;
+			if (typeof result === "string") {
+				return {
+					error: result,
+				};
 			}
 		}
 
-		this._execute(client, interaction);
+		await this._execute(client, interaction);
 
-		return true;
+		return {
+			error: null,
+		};
 	}
 }

@@ -8,11 +8,7 @@ export const name: EventName = "interactionCreate";
 
 export const execute: EventHandler<typeof name> = async (client, interaction) => {
 	if (interaction.isCommand()) {
-		const errorMessage = await handleCommandInteraction(client, interaction);
-
-		if (typeof errorMessage === "string") {
-			interaction.followUp({ ephemeral: true, content: errorMessage });
-		}
+		await handleCommandInteraction(client, interaction);
 	}
 };
 
@@ -20,42 +16,63 @@ async function handleCommandInteraction(
 	client: KittyClient,
 	interaction: DiscordCommandInteraction
 ) {
+	const errorInteraction = (message: string) => {
+		return interaction.followUp({ ephemeral: true, content: message });
+	};
+
+	// get command info
 	const command = client.commands.store.get(interaction.commandName);
 
 	if (!command) {
-		return t("events.interactionCreate.commandInteraction.noCommand");
+		return errorInteraction(t("events.interactionCreate.commandInteraction.noCommand"));
 	}
 
+	// defer the command so it doesnt error
 	await interaction.deferReply({ ephemeral: command.options.ephemeral }).catch(() => {});
 
+	// check guild
 	if (!interaction.guild) {
-		return t("events.interactionCreate.commandInteraction.noGuild");
+		return errorInteraction(t("events.interactionCreate.commandInteraction.noGuild"));
 	}
 
+	// fetch and check the member
 	const member =
 		interaction.guild?.members.cache.get(interaction.user.id) ||
 		(await interaction.guild?.members.fetch(interaction.user.id));
 
 	if (!member) {
-		return t("events.interactionCreate.commandInteraction.noMember");
+		return errorInteraction(t("events.interactionCreate.commandInteraction.noMember"));
 	}
 
-	const fullCommandInteraction = Object.assign(interaction, {
+	// assign custom properties
+	const commandInteraction = Object.assign(interaction, {
 		member,
 	}) as CommandInteraction;
 
+	Object.defineProperty(commandInteraction, "error", {
+		get: () => errorInteraction,
+	});
+
+	// execute
 	try {
-		command.execute(client, fullCommandInteraction);
+		const { error } = await command.execute(client, commandInteraction);
+
+		if (error) {
+			errorInteraction(error);
+		}
 
 		return null;
 	} catch (e) {
 		debug(e);
 
-		const message = t("events.interactionCreate.commandInteraction.errorWhileExecuting", {
-			name: command.name,
-		});
+		const errorMessage = t(
+			"events.interactionCreate.commandInteraction.errorWhileExecuting",
+			{
+				name: command.name,
+			}
+		);
 
-		error(message);
-		return message;
+		error(errorMessage);
+		errorInteraction(errorMessage);
 	}
 }
