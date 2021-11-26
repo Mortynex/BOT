@@ -55,13 +55,7 @@ async function handleCommandInteraction(
 
 	// execute
 	try {
-		const { error } = await command.execute(client, commandInteraction);
-
-		if (error) {
-			errorInteraction(error);
-		}
-
-		return null;
+		await command.execute(client, commandInteraction);
 	} catch (e) {
 		debug(e);
 

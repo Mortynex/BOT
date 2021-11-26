@@ -35,9 +35,13 @@ export const createCooldownInhibitor = (ms: number): Inhibitor => {
 				compact: true,
 			});
 
-			return t("commands.inhibitors.cooldown.userOnCooldown", {
-				time: roughCooldownTime,
-			});
+			interaction.error(
+				t("commands.inhibitors.cooldown.userOnCooldown", {
+					time: roughCooldownTime,
+				})
+			);
+
+			return false;
 		}
 
 		cooldownStore.putOnCooldown(id);
